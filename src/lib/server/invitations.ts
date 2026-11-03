@@ -2,8 +2,9 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { count, eq, sql } from 'drizzle-orm';
 import { answerDb } from './answer-db';
 import { identityDb } from './identity-db';
-import { invitations, surveyCreators, users } from '../../../drizzle/identity-schema';
-import { responses, surveys } from '../../../drizzle/answer-schema';
+import { invitations, surveyCreators, surveySigningKeys, users } from '../../../drizzle/identity-schema';
+import { responses, surveyPublicKeys, surveys } from '../../../drizzle/answer-schema';
+import { generateSurveyKeyMaterial } from './blind-signer';
 import type { Survey, SurveyConfig } from '../types/survey';
 
 export type Invitation = typeof invitations.$inferSelect;
@@ -20,8 +21,15 @@ export async function createSurvey(title: string, config: SurveyConfig): Promise
 		.values({ title, config, status: 'open' })
 		.returning();
 	try {
+		const keys = await generateSurveyKeyMaterial();
+		await answerDb.insert(surveyPublicKeys).values({ surveyId: row.id, publicKey: keys.publicKey });
 		await identityDb.insert(surveyCreators).values({ surveyId: row.id, creator: ADMIN_CREATOR });
+		await identityDb
+			.insert(surveySigningKeys)
+			.values({ surveyId: row.id, privateKey: keys.privateKey });
 	} catch (error) {
+		await answerDb.delete(surveyPublicKeys).where(eq(surveyPublicKeys.surveyId, row.id));
+		await identityDb.delete(surveyCreators).where(eq(surveyCreators.surveyId, row.id));
 		await answerDb.delete(surveys).where(eq(surveys.id, row.id));
 		throw error;
 	}

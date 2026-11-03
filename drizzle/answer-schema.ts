@@ -17,3 +17,15 @@ export const responses = pgTable('responses', {
 	blindSignature: text('blind_signature').notNull(),
 	answers: jsonb('answers').notNull()
 });
+
+// Per-survey RSA public key (SPKI, base64), used to verify unblinded signatures.
+export const surveyPublicKeys = pgTable('survey_public_keys', {
+	surveyId: uuid('survey_id').primaryKey(),
+	publicKey: text('public_key').notNull()
+});
+
+// SHA-256 hashes of signatures already redeemed; prevents reuse. No timestamps by design.
+export const usedSignatures = pgTable('used_signatures', {
+	signatureHash: text('signature_hash').primaryKey(),
+	surveyId: uuid('survey_id').notNull()
+});

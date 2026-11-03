@@ -15,6 +15,13 @@
       "when": 1793733966604,
       "tag": "0001_smooth_rhino",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793734350466,
+      "tag": "0002_dark_santa_claus",
+      "breakpoints": true
     }
   ]
 }

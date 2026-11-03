@@ -1,4 +1,4 @@
-import { boolean, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
 	id: uuid('id').primaryKey().defaultRandom(),
@@ -32,3 +32,22 @@ export const sessions = pgTable('sessions', {
 	tokenHash: text('token_hash').notNull().unique(),
 	expiresAt: timestamp('expires_at', { withTimezone: true }).notNull()
 });
+
+// Per-survey RSA private key (PKCS#8, base64); only needed to blind-sign. surveyId has no foreign key.
+export const surveySigningKeys = pgTable('survey_signing_keys', {
+	surveyId: uuid('survey_id').primaryKey(),
+	privateKey: text('private_key').notNull()
+});
+
+// Records that a user already received a blind signature for a survey (never what was signed).
+export const signingGrants = pgTable(
+	'signing_grants',
+	{
+		userId: uuid('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		surveyId: uuid('survey_id').notNull(),
+		grantedAt: timestamp('granted_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(table) => [unique('signing_grants_user_survey_unique').on(table.userId, table.surveyId)]
+);
