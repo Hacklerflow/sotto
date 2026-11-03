@@ -11,6 +11,12 @@
 	const legendId = $derived(`legend-${question.id}`);
 	const rangeValue = $derived(typeof value === 'number' ? value : null);
 
+	$effect(() => {
+		if (question.type === 'range' && question.range && value === null) {
+			value = Math.round((question.range.min + question.range.max) / 2);
+		}
+	});
+
 	function toggleOption(option: string, checked: boolean): void {
 		const current = Array.isArray(value) ? value : [];
 		const next = checked ? [...current, option] : current.filter((entry) => entry !== option);
