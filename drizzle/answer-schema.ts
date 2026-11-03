@@ -1,7 +1,7 @@
-import { boolean, jsonb, pgTable, text, uuid } from 'drizzle-orm/pg-core';
+import { boolean, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
-// No timestamps, no user references and no ordering columns anywhere in this schema:
-// anything that could correlate an answer with a person or a moment must not exist.
+// No timestamps, no user references and no ordering columns on answer tables (only
+// result_snapshots is stamped): anything that could correlate an answer with a person or a moment must not exist.
 export const surveys = pgTable('surveys', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	title: text('title').notNull(),
@@ -28,4 +28,12 @@ export const surveyPublicKeys = pgTable('survey_public_keys', {
 export const usedSignatures = pgTable('used_signatures', {
 	signatureHash: text('signature_hash').primaryKey(),
 	surveyId: uuid('survey_id').notNull()
+});
+
+// Frozen, aggregated results. frozen_at stamps the publication of results, not any answer.
+export const resultSnapshots = pgTable('result_snapshots', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	surveyId: uuid('survey_id').notNull(),
+	frozenAt: timestamp('frozen_at', { withTimezone: true }).notNull().defaultNow(),
+	data: jsonb('data').notNull()
 });
