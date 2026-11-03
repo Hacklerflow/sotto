@@ -55,6 +55,7 @@ function validateQuestion(raw: unknown, seenIds: Set<string>): Question {
 	}
 	const type = raw.type as QuestionType;
 	if (typeof raw.text !== 'string' || raw.text.trim() === '') throw new Error('question text required');
+	const question: Question = { id: raw.id, text: raw.text, type };
 	if (type === 'single-choice' || type === 'multi-choice') {
 		const options = raw.options;
 		if (
@@ -64,6 +65,11 @@ function validateQuestion(raw: unknown, seenIds: Set<string>): Question {
 		) {
 			throw new Error('choice questions need at least two options');
 		}
+		question.options = options.map(String);
+	}
+	if (type === 'number' && raw.unit !== undefined) {
+		if (typeof raw.unit !== 'string') throw new Error('unit must be a string');
+		question.unit = raw.unit;
 	}
 	if (type === 'range') {
 		const range = raw.range;
@@ -75,20 +81,21 @@ function validateQuestion(raw: unknown, seenIds: Set<string>): Question {
 		) {
 			throw new Error('range questions need min < max');
 		}
+		question.range = { min: range.min, max: range.max };
 	}
-	return raw as Question;
+	return question;
 }
 
-export function validateSurveyConfig(config: unknown): asserts config is SurveyConfig {
+export function validateSurveyConfig(config: unknown): SurveyConfig {
 	if (!isRecord(config)) throw new Error('config must be an object');
-	const questions = config.questions ?? [];
-	if (!Array.isArray(questions)) throw new Error('questions must be an array');
+	const rawQuestions = config.questions ?? [];
+	if (!Array.isArray(rawQuestions)) throw new Error('questions must be an array');
 	const ids = new Set<string>();
-	for (const question of questions) validateQuestion(question, ids);
+	const questions = rawQuestions.map((question) => validateQuestion(question, ids));
 
-	const dimensions = config.dimensions ?? [];
-	if (!Array.isArray(dimensions)) throw new Error('dimensions must be an array');
-	for (const dimension of dimensions) {
+	const rawDimensions = config.dimensions ?? [];
+	if (!Array.isArray(rawDimensions)) throw new Error('dimensions must be an array');
+	const dimensions: Dimension[] = rawDimensions.map((dimension) => {
 		if (!isRecord(dimension)) throw new Error('dimension must be an object');
 		if (!(CHART_TYPES as readonly string[]).includes(dimension.chartType as string)) {
 			throw new Error(`invalid chart type: ${String(dimension.chartType)}`);
@@ -100,18 +107,31 @@ export function validateSurveyConfig(config: unknown): asserts config is SurveyC
 				throw new Error(`unknown question id: ${String(reference)}`);
 			}
 		}
-	}
+		const normalized: Dimension = {
+			xAxis: dimension.xAxis as string,
+			yAxis: dimension.yAxis as string,
+			chartType: dimension.chartType as ChartType
+		};
+		if (dimension.sizeAxis !== undefined) normalized.sizeAxis = dimension.sizeAxis as string;
+		return normalized;
+	});
 
-	const visualizations = config.visualizations ?? [];
-	if (!Array.isArray(visualizations)) throw new Error('visualizations must be an array');
-	for (const visualization of visualizations) {
+	const rawVisualizations = config.visualizations ?? [];
+	if (!Array.isArray(rawVisualizations)) throw new Error('visualizations must be an array');
+	const visualizations: Visualization[] = rawVisualizations.map((visualization) => {
 		if (
 			!isRecord(visualization) ||
+			typeof visualization.dimensionIndex !== 'number' ||
 			!Number.isInteger(visualization.dimensionIndex) ||
-			(visualization.dimensionIndex as number) < 0 ||
-			(visualization.dimensionIndex as number) >= dimensions.length
+			visualization.dimensionIndex < 0 ||
+			visualization.dimensionIndex >= dimensions.length
 		) {
 			throw new Error('visualization must reference an existing dimension');
 		}
-	}
+		const normalized: Visualization = { dimensionIndex: visualization.dimensionIndex };
+		if (typeof visualization.title === 'string') normalized.title = visualization.title;
+		return normalized;
+	});
+
+	return { questions, dimensions, visualizations };
 }

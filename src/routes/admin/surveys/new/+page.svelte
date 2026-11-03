@@ -3,7 +3,7 @@
 	import { adminFetch } from '../../../../lib/client/admin-session';
 	import DimensionMapper from '../../../../lib/components/DimensionMapper.svelte';
 	import QuestionEditor from '../../../../lib/components/QuestionEditor.svelte';
-	import { validateSurveyConfig, type Dimension, type Question } from '../../../../lib/types/survey';
+	import { validateSurveyConfig, type Dimension, type Question, type SurveyConfig } from '../../../../lib/types/survey';
 
 	let title = $state('');
 	let questions = $state<Question[]>([]);
@@ -22,7 +22,7 @@
 	async function submit(event: SubmitEvent) {
 		event.preventDefault();
 		errorMessage = '';
-		const config = {
+		const draft = {
 			questions: cleanQuestions(),
 			dimensions: $state.snapshot(dimensions),
 			visualizations: $state.snapshot(dimensions).map((_, dimensionIndex) => ({ dimensionIndex }))
@@ -31,8 +31,9 @@
 			errorMessage = 'Titel fehlt.';
 			return;
 		}
+		let config: SurveyConfig;
 		try {
-			validateSurveyConfig(config);
+			config = validateSurveyConfig(draft);
 		} catch (cause) {
 			errorMessage = cause instanceof Error ? cause.message : 'Ungültige Konfiguration.';
 			return;

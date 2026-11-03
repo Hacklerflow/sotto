@@ -70,3 +70,20 @@ test('visualization must reference an existing dimension', () => {
 		'existing dimension'
 	);
 });
+
+test('validateSurveyConfig returns a normalized config without unknown fields', () => {
+	const result = validateSurveyConfig({
+		questions: [
+			{ id: 'q1', text: 'A', type: 'number', unit: 'kW', extra: 1, options: ['x', 'y'] }
+		],
+		hacked: true
+	});
+	expect(result).toEqual({
+		questions: [{ id: 'q1', text: 'A', type: 'number', unit: 'kW' }],
+		dimensions: [],
+		visualizations: []
+	});
+	expect(() =>
+		validateSurveyConfig({ questions: [{ id: 'q1', text: 'A', type: 'number', unit: 5 }] })
+	).toThrow('unit');
+});
