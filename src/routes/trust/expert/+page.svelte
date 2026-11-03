@@ -35,11 +35,11 @@
 	<h2>Quellcode</h2>
 	<p>Das Repository ist AGPL-3.0 lizenziert; siehe LICENSE im Repository.</p>
 
-	<h2>Reproduzierbarer Build</h2>
+	<h2>Build-Transparenz</h2>
 	<p>Aktueller Build-Hash: <code>{data.buildHash}</code></p>
 	<p>
-		Zum Nachprüfen: Repository auf den ausgewiesenen Commit auschecken, mit
-		<code>docker build --build-arg BUILD_HASH=&lt;commit&gt; .</code> bauen und den Inhalt von
-		<code>/app/build</code> mit dem laufenden System vergleichen.
+		Der Build nutzt <code>npm ci</code> mit einem gepinnten Node-Image. Bitgenaue Reproduzierbarkeit
+		ist damit nicht garantiert, aber der Build-Hash erlaubt es, den genauen Quellstand zu prüfen:
+		Repository auf den Commit auschecken und den Code mit dem hier beschriebenen Verhalten abgleichen.
 	</p>
 </main>

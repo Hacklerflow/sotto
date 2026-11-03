@@ -9,19 +9,19 @@
 
 	<ol>
 		<li>
-			<h2>1. Du bekommst eine Einladung</h2>
+			<h2>Du bekommst eine Einladung</h2>
 			<p>Wir wissen, dass du teilnehmen darfst, und markieren die Einladung als eingelöst.</p>
 		</li>
 		<li>
-			<h2>2. Dein Gerät verdeckt eine Marke</h2>
+			<h2>Dein Gerät verdeckt eine Marke</h2>
 			<p>Dein Browser erzeugt eine zufällige Marke und verdeckt sie, bevor er sie sendet.</p>
 		</li>
 		<li>
-			<h2>3. Der Server signiert blind</h2>
+			<h2>Der Server signiert blind</h2>
 			<p>Wir bestätigen die verdeckte Marke, ohne ihren Inhalt zu sehen.</p>
 		</li>
 		<li>
-			<h2>4. Du sendest anonym ab</h2>
+			<h2>Du sendest anonym ab</h2>
 			<p>
 				Dein Gerät entfernt die Verdeckung. Die Marke beweist, dass du berechtigt bist, aber nicht,
 				wer du bist.
