@@ -58,7 +58,10 @@ function randomBetween(min: number, max: number): number {
 }
 
 async function fetchPublicKey(surveyId: string): Promise<CryptoKey> {
-	const response = await fetch(`/api/public-key/${encodeURIComponent(surveyId)}`);
+	const response = await fetch(`/api/public-key/${encodeURIComponent(surveyId)}`, {
+		// Public data: never send the session cookie, or the server could hand each user a different key.
+		credentials: 'omit'
+	});
 	if (!response.ok) throw new Error('could not load survey public key');
 	const { publicKey } = (await response.json()) as { publicKey: string };
 	return crypto.subtle.importKey(

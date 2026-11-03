@@ -46,8 +46,7 @@ export const signingGrants = pgTable(
 		userId: uuid('user_id')
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
-		surveyId: uuid('survey_id').notNull(),
-		grantedAt: timestamp('granted_at', { withTimezone: true }).notNull().defaultNow()
+		surveyId: uuid('survey_id').notNull()
 	},
 	(table) => [unique('signing_grants_user_survey_unique').on(table.userId, table.surveyId)]
 );
