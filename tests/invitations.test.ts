@@ -11,7 +11,7 @@ import {
 import { surveyCreators } from '../drizzle/identity-schema';
 import { responses, surveys } from '../drizzle/answer-schema';
 
-const defaultConfig = { questions: [] };
+const defaultConfig = { questions: [], dimensions: [], visualizations: [] };
 
 afterAll(async () => {
 	await identityDb.$client.end();

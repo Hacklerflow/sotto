@@ -31,7 +31,7 @@ async function importPublicKey(spkiBase64: string): Promise<CryptoKey> {
 }
 
 async function setup() {
-	const survey = await createSurvey('Blind', { questions: [] });
+	const survey = await createSurvey('Blind', { questions: [], dimensions: [], visualizations: [] });
 	const [invite] = await createInvitations(survey.id, [`blind-${survey.id}@test.com`]);
 	const { userId } = await redeemInvitation(invite.token);
 	const publicKey = await importPublicKey((await getSurveyPublicKey(survey.id)) as string);

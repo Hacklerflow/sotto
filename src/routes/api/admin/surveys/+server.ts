@@ -2,7 +2,7 @@ import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { isAdminRequest } from '../../../../lib/server/auth';
 import { createSurvey } from '../../../../lib/server/invitations';
-import type { SurveyConfig } from '../../../../lib/types/survey';
+import { validateSurveyConfig } from '../../../../lib/types/survey';
 
 export const POST: RequestHandler = async ({ request }) => {
 	if (!isAdminRequest(request)) error(401, 'Unauthorized');
@@ -13,6 +13,11 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (typeof config !== 'object' || config === null || Array.isArray(config)) {
 		error(400, 'config must be an object');
 	}
-	const survey = await createSurvey(title.trim(), config as SurveyConfig);
+	try {
+		validateSurveyConfig(config);
+	} catch (cause) {
+		error(400, cause instanceof Error ? cause.message : 'Invalid config');
+	}
+	const survey = await createSurvey(title.trim(), config);
 	return json(survey, { status: 201 });
 };
