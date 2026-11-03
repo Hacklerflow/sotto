@@ -2,16 +2,15 @@ import { eq } from 'drizzle-orm';
 import { answerDb } from './answer-db';
 import { resultSnapshots, surveys } from '../../../drizzle/answer-schema';
 import type { ChartType, Question } from '../types/survey';
-import {
-	buildLabeler,
-	isNumericQuestion,
-	MINIMUM_GROUP_SIZE,
-	numericValues,
-	type Answers
-} from './binning';
-import { checkThreshold, loadSurveyForAggregation } from './threshold';
+import { buildLabeler, isNumericQuestion, MINIMUM_GROUP_SIZE, type Answers } from './binning';
+import { loadSurveyForAggregation, MINIMUM_RESPONSES } from './threshold';
 
-export type AggregatedPoint = { x: string; y: string; count: number; size?: number };
+export type AggregatedPoint = {
+	x: string;
+	y: string;
+	count: number;
+	size?: number;
+};
 export type AggregatedFlow = { source: string; target: string; count: number };
 
 export type AggregatedDimension = {
@@ -55,29 +54,42 @@ export function pearsonCorrelation(pairs: [number, number][]): number | null {
 	return Math.round((covariance / Math.sqrt(varianceX * varianceY)) * 1000) / 1000;
 }
 
+// Suppression is per question: a rare option in one question must not hide it elsewhere.
+function suppressionKey(questionId: string, option: string): string {
+	return `${questionId}:${option}`;
+}
+
 // Categorical options chosen fewer than MINIMUM_GROUP_SIZE times are suppressed.
-function findSuppressedCategories(questions: Question[], answers: Answers[]): Set<string> {
+function findSuppressedCategories(
+	questions: Question[],
+	answers: Answers[]
+): { suppressed: Set<string>; suppressedOptions: Set<string> } {
 	const suppressed = new Set<string>();
+	const suppressedOptions = new Set<string>();
 	for (const question of questions) {
 		if (isNumericQuestion(question)) continue;
 		const counts = new Map<string, number>();
 		for (const response of answers) {
 			const value = response[question.id];
 			const chosen = typeof value === 'string' ? [value] : Array.isArray(value) ? value : [];
-			for (const option of chosen) counts.set(String(option), (counts.get(String(option)) ?? 0) + 1);
+			for (const option of chosen)
+				counts.set(String(option), (counts.get(String(option)) ?? 0) + 1);
 		}
 		for (const [option, count] of counts) {
-			if (count < MINIMUM_GROUP_SIZE) suppressed.add(option);
+			if (count < MINIMUM_GROUP_SIZE) {
+				suppressed.add(suppressionKey(question.id, option));
+				suppressedOptions.add(option);
+			}
 		}
 	}
-	return suppressed;
+	return { suppressed, suppressedOptions };
 }
 
 function aggregate(
 	config: Awaited<ReturnType<typeof loadSurveyForAggregation>>['config'],
 	answers: Answers[]
 ): AggregatedData {
-	const suppressed = findSuppressedCategories(config.questions, answers);
+	const { suppressed, suppressedOptions } = findSuppressedCategories(config.questions, answers);
 	const findQuestion = (id: string): Question => {
 		const question = config.questions.find((candidate) => candidate.id === id);
 		if (!question) throw new Error(`unknown question id: ${id}`);
@@ -99,7 +111,11 @@ function aggregate(
 			const sizeValue = sizeQuestion ? response[sizeQuestion.id] : undefined;
 			for (const x of xLabels) {
 				for (const y of yLabels) {
-					if (suppressed.has(x) || suppressed.has(y)) continue;
+					if (
+						suppressed.has(suppressionKey(xQuestion.id, x)) ||
+						suppressed.has(suppressionKey(yQuestion.id, y))
+					)
+						continue;
 					const key = JSON.stringify([x, y]);
 					const cell = cells.get(key) ?? { x, y, count: 0, sizes: [] };
 					cell.count += 1;
@@ -116,10 +132,15 @@ function aggregate(
 				suppressedCells += 1;
 				continue;
 			}
-			const point: AggregatedPoint = { x: cell.x, y: cell.y, count: cell.count };
+			const point: AggregatedPoint = {
+				x: cell.x,
+				y: cell.y,
+				count: cell.count
+			};
 			if (cell.sizes.length > 0) {
 				point.size =
-					Math.round((cell.sizes.reduce((sum, size) => sum + size, 0) / cell.sizes.length) * 100) / 100;
+					Math.round((cell.sizes.reduce((sum, size) => sum + size, 0) / cell.sizes.length) * 100) /
+					100;
 			}
 			points.push(point);
 		}
@@ -146,7 +167,11 @@ function aggregate(
 		};
 		if (dimension.sizeAxis) result.sizeAxis = dimension.sizeAxis;
 		if (dimension.chartType === 'sankey') {
-			result.flows = points.map((point) => ({ source: point.x, target: point.y, count: point.count }));
+			result.flows = points.map((point) => ({
+				source: point.x,
+				target: point.y,
+				count: point.count
+			}));
 		}
 		return result;
 	});
@@ -154,19 +179,45 @@ function aggregate(
 	return {
 		responseCount: answers.length,
 		dimensions,
-		suppressedCategories: [...suppressed].sort()
+		suppressedCategories: [...suppressedOptions].sort()
 	};
 }
 
+export class AlreadyFrozenError extends Error {
+	constructor() {
+		super('survey already frozen');
+	}
+}
+
+// One snapshot per survey, and freezing closes the survey, so two snapshots at n and n+1
+// responses can never be diffed to recover a single answer. The status update runs first
+// and takes the survey row lock, serializing concurrent freezes; any throw rolls it back.
 export async function freezeResults(surveyId: string): Promise<ResultSnapshot> {
-	const threshold = await checkThreshold(surveyId);
-	if (!threshold.met) throw new Error('anonymity threshold not met');
-	const { config, answers } = await loadSurveyForAggregation(surveyId);
-	const aggregatedData = aggregate(config, answers);
-	const [row] = await answerDb
-		.insert(resultSnapshots)
-		.values({ surveyId, data: aggregatedData })
-		.returning();
-	await answerDb.update(surveys).set({ thresholdMet: true }).where(eq(surveys.id, surveyId));
-	return { id: row.id, surveyId, frozenAt: row.frozenAt.toISOString(), aggregatedData };
+	return answerDb.transaction(async (transaction) => {
+		const closed = await transaction
+			.update(surveys)
+			.set({ status: 'closed' })
+			.where(eq(surveys.id, surveyId))
+			.returning({ id: surveys.id });
+		if (closed.length === 0) throw new Error('survey not found');
+		const existing = await transaction
+			.select({ id: resultSnapshots.id })
+			.from(resultSnapshots)
+			.where(eq(resultSnapshots.surveyId, surveyId));
+		if (existing.length > 0) throw new AlreadyFrozenError();
+		const { config, answers } = await loadSurveyForAggregation(surveyId, transaction);
+		if (answers.length < MINIMUM_RESPONSES) throw new Error('anonymity threshold not met');
+		const aggregatedData = aggregate(config, answers);
+		const [row] = await transaction
+			.insert(resultSnapshots)
+			.values({ surveyId, data: aggregatedData })
+			.returning();
+		await transaction.update(surveys).set({ thresholdMet: true }).where(eq(surveys.id, surveyId));
+		return {
+			id: row.id,
+			surveyId,
+			frozenAt: row.frozenAt.toISOString(),
+			aggregatedData
+		};
+	});
 }

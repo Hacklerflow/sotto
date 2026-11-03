@@ -22,12 +22,21 @@ function formatNumber(value: number): string {
 	return String(Math.round(value * 100) / 100);
 }
 
+// Outer edges are widened to a power-of-ten multiple of the value range so a lone
+// outlier's exact value never appears in a bin label.
+function coarsenOuterEdges(minimum: number, maximum: number): [number, number] {
+	if (minimum === maximum) return [minimum, maximum];
+	const step = 10 ** Math.floor(Math.log10(maximum - minimum));
+	return [Math.floor(minimum / step) * step, Math.ceil(maximum / step) * step];
+}
+
 // Quartile bins: [min, q1), [q1, q2), [q2, q3), [q3, max]. Duplicate edges collapse.
 export function computeQuartileBins(values: number[]): NumericBins {
 	if (values.length === 0) return { edges: [], labels: [] };
 	const sorted = [...values].sort((a, b) => a - b);
 	const inner = [0.25, 0.5, 0.75].map((fraction) => quantile(sorted, fraction));
-	const edges = [sorted[0], ...inner, sorted[sorted.length - 1]].filter(
+	const [lowerEdge, upperEdge] = coarsenOuterEdges(sorted[0], sorted[sorted.length - 1]);
+	const edges = [lowerEdge, ...inner, upperEdge].filter(
 		(edge, index, all) => index === 0 || edge > all[index - 1]
 	);
 	if (edges.length === 1) return { edges, labels: [formatNumber(edges[0])] };

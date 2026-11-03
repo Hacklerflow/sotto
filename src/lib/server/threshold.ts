@@ -13,10 +13,16 @@ export type ThresholdResult = {
 	warnings: string[];
 };
 
-export async function loadSurveyForAggregation(surveyId: string) {
-	const [survey] = await answerDb.select().from(surveys).where(eq(surveys.id, surveyId));
+export type AnswerDatabaseExecutor =
+	typeof answerDb | Parameters<Parameters<typeof answerDb.transaction>[0]>[0];
+
+export async function loadSurveyForAggregation(
+	surveyId: string,
+	executor: AnswerDatabaseExecutor = answerDb
+) {
+	const [survey] = await executor.select().from(surveys).where(eq(surveys.id, surveyId));
 	if (!survey) throw new Error('survey not found');
-	const rows = await answerDb
+	const rows = await executor
 		.select({ answers: responses.answers })
 		.from(responses)
 		.where(eq(responses.surveyId, surveyId));
@@ -33,7 +39,12 @@ export async function checkThreshold(surveyId: string): Promise<ThresholdResult>
 
 	if (responseCount < MINIMUM_RESPONSES) {
 		warnings.push(`Only ${responseCount} of ${MINIMUM_RESPONSES} required responses`);
-		return { met: false, responseCount, requiredCount: MINIMUM_RESPONSES, warnings };
+		return {
+			met: false,
+			responseCount,
+			requiredCount: MINIMUM_RESPONSES,
+			warnings
+		};
 	}
 
 	config.dimensions.forEach((dimension, index) => {
@@ -59,5 +70,10 @@ export async function checkThreshold(surveyId: string): Promise<ThresholdResult>
 		}
 	});
 
-	return { met: true, responseCount, requiredCount: MINIMUM_RESPONSES, warnings };
+	return {
+		met: true,
+		responseCount,
+		requiredCount: MINIMUM_RESPONSES,
+		warnings
+	};
 }
