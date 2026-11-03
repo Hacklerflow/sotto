@@ -11,6 +11,8 @@ ENV NODE_ENV=production PORT=3000
 COPY --from=build /app/build ./build
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./
+COPY --from=build /app/drizzle ./drizzle
+COPY docker-entrypoint.sh ./
 USER node
 EXPOSE 3000
-CMD ["node", "build"]
+CMD ["sh", "docker-entrypoint.sh"]
