@@ -1,4 +1,5 @@
 <script lang="ts">
+	import TrustBadge from '../../../../lib/components/TrustBadge.svelte';
 	import HeroNumber from '../../../../lib/components/HeroNumber.svelte';
 	import InsightCard from '../../../../lib/components/InsightCard.svelte';
 	import SankeyChart from '../../../../lib/components/charts/SankeyChart.svelte';
@@ -83,6 +84,8 @@
 	</main>
 {/if}
 
+<footer class="trust"><TrustBadge /></footer>
+
 <style>
 	main {
 		max-width: 64rem;
@@ -105,6 +108,11 @@
 		width: 100%;
 		height: 16px;
 		accent-color: var(--color-accent-red);
+	}
+	.trust {
+		max-width: 64rem;
+		margin: 0 auto;
+		padding: var(--space-2);
 	}
 	section {
 		margin: var(--space-4) 0;

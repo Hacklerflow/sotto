@@ -1,4 +1,5 @@
 <script lang="ts">
+	import TrustBadge from '../../../lib/components/TrustBadge.svelte';
 	import SurveyForm from '../../../lib/components/SurveyForm.svelte';
 	import SubmissionFlow from '../../../lib/components/SubmissionFlow.svelte';
 	import { loadCredential } from '../../../lib/client/blind-requester';
@@ -33,3 +34,5 @@
 		<SurveyForm config={participation.config} onsubmit={(submitted) => (answers = submitted)} />
 	{/if}
 {/if}
+
+<footer class="trust"><TrustBadge /></footer>
