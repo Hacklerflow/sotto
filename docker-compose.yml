@@ -2,8 +2,8 @@ services:
   sotto-web:
     build: .
     environment:
-      IDENTITY_DB_URL: postgres://sotto:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@sotto-identity-db:5432/sotto_identity
-      ANSWER_DB_URL: postgres://sotto:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@sotto-answer-db:5432/sotto_answer
+      IDENTITY_DB_URL: postgres://sotto:${IDENTITY_DB_PASSWORD:?Set IDENTITY_DB_PASSWORD}@sotto-identity-db:5432/sotto_identity
+      ANSWER_DB_URL: postgres://sotto:${ANSWER_DB_PASSWORD:?Set ANSWER_DB_PASSWORD}@sotto-answer-db:5432/sotto_answer
       ORIGIN: https://${SOTTO_DOMAIN:-localhost}
     expose:
       - "3000"
@@ -18,7 +18,7 @@ services:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: sotto
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${IDENTITY_DB_PASSWORD:?Set IDENTITY_DB_PASSWORD}
       POSTGRES_DB: sotto_identity
     ports:
       - "127.0.0.1:5433:5432"
@@ -35,7 +35,7 @@ services:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: sotto
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${ANSWER_DB_PASSWORD:?Set ANSWER_DB_PASSWORD}
       POSTGRES_DB: sotto_answer
     ports:
       - "127.0.0.1:5434:5432"

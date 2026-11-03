@@ -11,6 +11,8 @@ SvelteKit 3 (Svelte 5, runes), TypeScript strict, Drizzle ORM, PostgreSQL (two d
 ## Setup
 
 ```bash
+export IDENTITY_DB_PASSWORD=<choose-a-strong-password>
+export ANSWER_DB_PASSWORD=<choose-a-different-strong-password>
 docker compose up -d      # web app + identity database + answer database
 ```
 
