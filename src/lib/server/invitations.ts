@@ -44,6 +44,18 @@ export async function createInvitations(surveyId: string, emails: string[]): Pro
 		.returning();
 }
 
+export type InvitationStatus = 'valid' | 'redeemed' | 'unknown';
+
+// Read-only check; never consumes the token.
+export async function getInvitationStatus(token: string): Promise<InvitationStatus> {
+	const [existing] = await identityDb
+		.select({ redeemed: invitations.redeemed })
+		.from(invitations)
+		.where(eq(invitations.token, token));
+	if (!existing) return 'unknown';
+	return existing.redeemed ? 'redeemed' : 'valid';
+}
+
 export async function redeemInvitation(
 	token: string
 ): Promise<{ userId: string; surveyId: string }> {
