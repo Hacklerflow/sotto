@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 COPY . .
-RUN npm run build && npm prune --omit=dev
+RUN IDENTITY_DB_URL=build-placeholder ANSWER_DB_URL=build-placeholder npm run build && npm prune --omit=dev
 
 FROM node:22-alpine
 WORKDIR /app
