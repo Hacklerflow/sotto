@@ -3,6 +3,7 @@
 <nav class="admin-nav">
 	<a href="/admin/surveys">Alle Umfragen</a>
 	<a href="/admin/surveys/new">Neue Umfrage erstellen</a>
+	<a href="/admin/groups">Gruppen</a>
 </nav>
 
 <style>

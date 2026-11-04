@@ -1,0 +1,23 @@
+import { error, json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
+import { isAdminRequest } from '../../../../../lib/server/auth';
+import { getGroup, updateGroup, getGroupMembers } from '../../../../../lib/server/groups';
+
+export const GET: RequestHandler = async ({ request, params }) => {
+	if (!isAdminRequest(request)) error(401, 'Unauthorized');
+	const group = await getGroup(params.id);
+	if (!group) error(404, 'Group not found');
+	const members = await getGroupMembers(params.id);
+	return json({ ...group, members });
+};
+
+export const PATCH: RequestHandler = async ({ request, params }) => {
+	if (!isAdminRequest(request)) error(401, 'Unauthorized');
+	const body: unknown = await request.json().catch(() => null);
+	if (typeof body !== 'object' || body === null) error(400, 'Invalid JSON body');
+	const { name } = body as { name?: unknown };
+	if (typeof name !== 'string' || name.trim() === '') error(400, 'name is required');
+	const group = await updateGroup(params.id, name.trim());
+	if (!group) error(404, 'Group not found');
+	return json(group);
+};

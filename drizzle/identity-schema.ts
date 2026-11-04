@@ -16,6 +16,25 @@ export const invitations = pgTable('invitations', {
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
 });
 
+export const groups = pgTable('groups', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	name: text('name').notNull(),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+});
+
+export const groupMembers = pgTable(
+	'group_members',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		groupId: uuid('group_id')
+			.notNull()
+			.references(() => groups.id, { onDelete: 'cascade' }),
+		name: text('name').notNull(),
+		email: text('email').notNull()
+	},
+	(table) => [unique('group_members_group_email_unique').on(table.groupId, table.email)]
+);
+
 // Creator association for surveys; surveyId has no foreign key (survey metadata lives in the Answer-DB).
 export const surveyCreators = pgTable('survey_creators', {
 	surveyId: uuid('survey_id').primaryKey(),
