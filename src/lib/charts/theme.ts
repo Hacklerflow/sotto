@@ -1,4 +1,4 @@
-export const SIGNAL_COLORS = ['#ff2d55', '#5856d6', '#007aff', '#34c759', '#ffcc00'] as const;
+export const SIGNAL_COLORS = ['#ff2d55', '#000000', '#86868b'] as const;
 
 const FONT_FAMILY =
 	"-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";

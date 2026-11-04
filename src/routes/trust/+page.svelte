@@ -33,5 +33,5 @@
 		Einladungen und Antworten liegen in zwei getrennten Datenbanken. Ergebnisse erscheinen erst, wenn
 		genug Personen geantwortet haben.
 	</p>
-	<p><a href="/trust/expert">Technische Details für Expertinnen und Experten</a></p>
+	<p><a href="/trust/expert"><strong>Technische Details für Expertinnen und Experten</strong></a></p>
 </main>

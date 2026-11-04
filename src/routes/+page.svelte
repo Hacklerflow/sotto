@@ -30,7 +30,7 @@
 	}
 	.tagline {
 		font-size: var(--font-size-h5);
-		color: var(--color-accent-red);
+		color: var(--color-accent);
 		margin: var(--space-1) 0 var(--space-3);
 	}
 	.actions {
@@ -47,8 +47,7 @@
 		font-weight: 700;
 	}
 	.admin-link {
-		color: var(--color-primary);
-		opacity: 0.5;
 		font-weight: 400;
+		color: var(--color-muted);
 	}
 </style>

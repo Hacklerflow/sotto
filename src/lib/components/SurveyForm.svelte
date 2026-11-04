@@ -108,7 +108,7 @@
 	}
 	.progress-bar {
 		height: 100%;
-		background: var(--color-accent-green);
+		background: var(--color-accent);
 		transition: width 0.2s;
 	}
 	.step {

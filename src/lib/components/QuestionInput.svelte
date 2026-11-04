@@ -117,8 +117,8 @@
 		cursor: pointer;
 	}
 	.choice:has(input:checked) {
-		background: var(--color-accent-blue);
-		border-color: var(--color-accent-blue);
+		background: var(--color-primary);
+		border-color: var(--color-primary);
 		color: var(--color-bg);
 	}
 	.choice input {

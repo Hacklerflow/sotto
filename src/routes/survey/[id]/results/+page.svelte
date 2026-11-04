@@ -107,7 +107,7 @@
 	progress {
 		width: 100%;
 		height: 16px;
-		accent-color: var(--color-accent-red);
+		accent-color: var(--color-accent);
 	}
 	.trust {
 		max-width: 64rem;

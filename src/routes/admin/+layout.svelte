@@ -56,6 +56,8 @@
 	}
 	.logo {
 		text-decoration: none;
+		font-size: var(--font-size-h5);
+		letter-spacing: -0.04em;
 	}
 	nav {
 		display: flex;
@@ -63,6 +65,7 @@
 	}
 	nav a {
 		font-size: var(--font-size-small);
+		font-weight: 600;
 	}
 	header button {
 		margin-left: auto;

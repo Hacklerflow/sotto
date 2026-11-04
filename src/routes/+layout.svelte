@@ -45,6 +45,6 @@
 	}
 	.site-header nav a {
 		font-size: var(--font-size-small);
-		text-decoration: none;
+		font-weight: 600;
 	}
 </style>

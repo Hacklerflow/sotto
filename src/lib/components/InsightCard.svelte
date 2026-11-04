@@ -8,9 +8,7 @@
 		correlation
 	}: { title: string; detail: string; type: InsightType; correlation?: number } = $props();
 
-	const accent = $derived(
-		type === 'counterintuitive' ? '#ff2d55' : type === 'strong-correlation' ? '#007aff' : '#5856d6'
-	);
+	const accent = '#ff2d55';
 </script>
 
 <article class="card" style="border-color: {accent};">

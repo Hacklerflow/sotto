@@ -1,11 +1,8 @@
 :root {
 	--color-bg: #fff;
 	--color-primary: #000;
-	--color-accent-red: #ff2d55;
-	--color-accent-blue: #007aff;
-	--color-accent-purple: #5856d6;
-	--color-accent-green: #34c759;
-	--color-accent-yellow: #ffcc00;
+	--color-accent: #ff2d55;
+	--color-muted: #86868b;
 
 	--font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 	--font-size-h1: 96px;
@@ -58,7 +55,10 @@ h5 { font-size: var(--font-size-h5); }
 
 small { font-size: var(--font-size-small); }
 
-a { color: var(--color-accent-blue); }
+a {
+	color: inherit;
+	text-decoration: none;
+}
 
 .page {
 	max-width: var(--content-max-width);

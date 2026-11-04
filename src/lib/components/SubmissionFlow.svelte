@@ -73,7 +73,7 @@
 		width: 48px;
 		height: 48px;
 		border: 5px solid #e5e5ea;
-		border-top-color: var(--color-accent-blue);
+		border-top-color: var(--color-accent);
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
 	}
