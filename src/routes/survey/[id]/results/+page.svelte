@@ -7,9 +7,10 @@
 	import BubbleChart from '../../../../lib/components/charts/BubbleChart.svelte';
 	import BarChart from '../../../../lib/components/charts/BarChart.svelte';
 	import DistributionBar from '../../../../lib/components/charts/DistributionBar.svelte';
+	import Explorer from '../../../../lib/components/Explorer.svelte';
 	import type { SurveyResults } from '../../../../lib/server/results';
 
-	let { data }: { data: { results: Exclude<SurveyResults, { state: 'not-found' }> } } = $props();
+	let { data }: { data: { results: Exclude<SurveyResults, { state: 'not-found' }>; surveyId: string } } = $props();
 	const results = $derived(data.results);
 
 	function questionText(questions: { id: string; text: string }[], id: string): string {
@@ -91,6 +92,8 @@
 				/>
 			{/if}
 		{/each}
+
+		<Explorer surveyId={data.surveyId} questions={config.questions} />
 	</main>
 {/if}
 

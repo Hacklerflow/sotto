@@ -241,290 +241,97 @@ interface ArtistProfile {
 	nebeneinkommen: string;
 }
 
+type Archetype = {
+	count: number;
+	ausstellungen: number;
+	auftraege: number;
+	online: number;
+	familie: number;
+	foerderungen: number;
+	atelierkosten: number;
+	materialkosten: number;
+	werke: number;
+	preisMin: number;
+	preisMax: number;
+	ausstellungenKarriere: number;
+	einzelRatio: number;
+	provisionGalerie: number;
+	provisionAndere: number;
+	follower: number;
+	hauptkanal: string[];
+	socialMedia: string[];
+	arbeitsweise: string[];
+	zusammenarbeit: string[];
+	nebeneinkommen: string[];
+};
+
+const ARCHETYPES: Archetype[] = [
+	// Gallery stars — established, high prices
+	{ count: 3, ausstellungen: 60000, auftraege: 15000, online: 3000, familie: 0, foerderungen: 5000, atelierkosten: 2200, materialkosten: 6000, werke: 12, preisMin: 2500, preisMax: 18000, ausstellungenKarriere: 45, einzelRatio: 0.27, provisionGalerie: 50, provisionAndere: 15, follower: 8000, hauptkanal: ['Galerie'], socialMedia: ['Instagram', 'Instagram', 'LinkedIn'], arbeitsweise: ['Allein', 'Mit Assistent:in(nen)'], zusammenarbeit: ['Selten (1–2× im Jahr)'], nebeneinkommen: ['Nein, lebe nur von der Kunst'] },
+	// Mid-career established
+	{ count: 3, ausstellungen: 18000, auftraege: 10000, online: 4000, familie: 3000, foerderungen: 8000, atelierkosten: 1200, materialkosten: 3500, werke: 18, preisMin: 600, preisMax: 5000, ausstellungenKarriere: 28, einzelRatio: 0.21, provisionGalerie: 45, provisionAndere: 20, follower: 3500, hauptkanal: ['Galerie', 'Galerie', 'Kunstmessen'], socialMedia: ['Instagram'], arbeitsweise: ['Allein'], zusammenarbeit: ['Selten (1–2× im Jahr)', 'Regelmäßig (monatlich)'], nebeneinkommen: ['Nein, lebe nur von der Kunst', 'Ja, unter 500 €/Monat'] },
+	// Emerging artists
+	{ count: 3, ausstellungen: 3000, auftraege: 2000, online: 1500, familie: 8000, foerderungen: 6000, atelierkosten: 700, materialkosten: 2000, werke: 8, preisMin: 200, preisMax: 1800, ausstellungenKarriere: 7, einzelRatio: 0.14, provisionGalerie: 40, provisionAndere: 15, follower: 1800, hauptkanal: ['Galerie', 'Direkt aus dem Atelier'], socialMedia: ['Instagram'], arbeitsweise: ['Allein'], zusammenarbeit: ['Selten (1–2× im Jahr)', 'Regelmäßig (monatlich)'], nebeneinkommen: ['Ja, 500–1500 €/Monat', 'Ja, über 1500 €/Monat'] },
+	// Social media artists — high volume, low prices
+	{ count: 3, ausstellungen: 5000, auftraege: 8000, online: 25000, familie: 0, foerderungen: 2000, atelierkosten: 900, materialkosten: 4000, werke: 85, preisMin: 50, preisMax: 1200, ausstellungenKarriere: 5, einzelRatio: 0.2, provisionGalerie: 0, provisionAndere: 12, follower: 45000, hauptkanal: ['Eigene Website', 'Online-Plattform (Etsy, Artsy …)'], socialMedia: ['Instagram', 'TikTok', 'TikTok'], arbeitsweise: ['Allein', 'Mit Assistent:in(nen)'], zusammenarbeit: ['Nie'], nebeneinkommen: ['Nein, lebe nur von der Kunst', 'Ja, unter 500 €/Monat'] },
+	// Grant-dependent
+	{ count: 3, ausstellungen: 4000, auftraege: 2000, online: 500, familie: 4000, foerderungen: 18000, atelierkosten: 1100, materialkosten: 3000, werke: 4, preisMin: 800, preisMax: 3500, ausstellungenKarriere: 18, einzelRatio: 0.22, provisionGalerie: 40, provisionAndere: 10, follower: 2200, hauptkanal: ['Galerie', 'Kunstmessen'], socialMedia: ['Instagram', 'LinkedIn'], arbeitsweise: ['Allein'], zusammenarbeit: ['Regelmäßig (monatlich)'], nebeneinkommen: ['Ja, unter 500 €/Monat', 'Ja, 500–1500 €/Monat'] },
+	// Part-time/hobby artists
+	{ count: 3, ausstellungen: 1500, auftraege: 1000, online: 800, familie: 0, foerderungen: 500, atelierkosten: 400, materialkosten: 1200, werke: 5, preisMin: 100, preisMax: 800, ausstellungenKarriere: 4, einzelRatio: 0, provisionGalerie: 0, provisionAndere: 10, follower: 600, hauptkanal: ['Direkt aus dem Atelier', 'Online-Plattform (Etsy, Artsy …)'], socialMedia: ['Instagram', 'Keine', 'Keine'], arbeitsweise: ['Allein'], zusammenarbeit: ['Nie'], nebeneinkommen: ['Ja, über 1500 €/Monat'] },
+	// Commercial/commission artists
+	{ count: 3, ausstellungen: 10000, auftraege: 40000, online: 8000, familie: 0, foerderungen: 0, atelierkosten: 2800, materialkosten: 8000, werke: 30, preisMin: 1000, preisMax: 8000, ausstellungenKarriere: 15, einzelRatio: 0.2, provisionGalerie: 35, provisionAndere: 10, follower: 5500, hauptkanal: ['Direkt aus dem Atelier', 'Eigene Website'], socialMedia: ['Instagram', 'LinkedIn'], arbeitsweise: ['Mit Assistent:in(nen)'], zusammenarbeit: ['Selten (1–2× im Jahr)'], nebeneinkommen: ['Nein, lebe nur von der Kunst'] },
+	// Struggling artists
+	{ count: 3, ausstellungen: 500, auftraege: 800, online: 300, familie: 15000, foerderungen: 2000, atelierkosten: 500, materialkosten: 1500, werke: 3, preisMin: 80, preisMax: 600, ausstellungenKarriere: 3, einzelRatio: 0, provisionGalerie: 0, provisionAndere: 15, follower: 400, hauptkanal: ['Direkt aus dem Atelier', 'Online-Plattform (Etsy, Artsy …)'], socialMedia: ['Instagram', 'TikTok', 'Keine'], arbeitsweise: ['Allein'], zusammenarbeit: ['Nie', 'Selten (1–2× im Jahr)'], nebeneinkommen: ['Ja, 500–1500 €/Monat', 'Ja, über 1500 €/Monat'] },
+	// Print/volume sellers
+	{ count: 3, ausstellungen: 2000, auftraege: 3000, online: 20000, familie: 0, foerderungen: 0, atelierkosten: 600, materialkosten: 3500, werke: 150, preisMin: 25, preisMax: 400, ausstellungenKarriere: 3, einzelRatio: 0, provisionGalerie: 0, provisionAndere: 18, follower: 22000, hauptkanal: ['Online-Plattform (Etsy, Artsy …)', 'Eigene Website'], socialMedia: ['Instagram', 'TikTok'], arbeitsweise: ['Allein'], zusammenarbeit: ['Nie'], nebeneinkommen: ['Nein, lebe nur von der Kunst', 'Ja, unter 500 €/Monat'] },
+	// Collective/team artists
+	{ count: 3, ausstellungen: 8000, auftraege: 5000, online: 2000, familie: 5000, foerderungen: 10000, atelierkosten: 800, materialkosten: 2500, werke: 10, preisMin: 300, preisMax: 2500, ausstellungenKarriere: 20, einzelRatio: 0.1, provisionGalerie: 40, provisionAndere: 10, follower: 3000, hauptkanal: ['Galerie', 'Kunstmessen'], socialMedia: ['Instagram'], arbeitsweise: ['Im Kollektiv/Team'], zusammenarbeit: ['Hauptsächlich im Team'], nebeneinkommen: ['Ja, unter 500 €/Monat', 'Ja, 500–1500 €/Monat'] }
+];
+
+function buildProfile(archetype: Archetype): ArtistProfile {
+	const ausstellungen = jitter(archetype.ausstellungen, 0.25);
+	const auftraege = jitter(archetype.auftraege, 0.3);
+	const online = jitter(archetype.online, 0.35);
+	const gesamt = ausstellungen + auftraege + online;
+
+	const preisMax = jitter(archetype.preisMax, 0.25);
+	const preisMin = Math.min(jitter(archetype.preisMin, 0.25), Math.round(preisMax * 0.3));
+	const werke = Math.max(1, jitter(archetype.werke, 0.3));
+	const preisAvg = werke > 0 ? Math.round(gesamt / werke) : Math.round((preisMin + preisMax) / 2);
+
+	const ausstellungenGesamt = Math.max(1, jitter(archetype.ausstellungenKarriere, 0.2));
+	const einzelausstellungen = Math.round(ausstellungenGesamt * archetype.einzelRatio);
+
+	return {
+		einkommen_gesamt: gesamt,
+		einkommen_ausstellungen: ausstellungen,
+		einkommen_auftraege: auftraege,
+		einkommen_online: online,
+		unterstuetzung_familie: jitter(archetype.familie, 0.3),
+		foerderungen: jitter(archetype.foerderungen, 0.35),
+		ausgaben_gesamt: jitter(archetype.atelierkosten, 0.2),
+		ausgaben_material: jitter(archetype.materialkosten, 0.25),
+		werke_verkauft: werke,
+		preis_max: preisMax,
+		preis_min: preisMin,
+		preis_durchschnitt: Math.min(preisAvg, preisMax),
+		ausstellungen_gesamt: ausstellungenGesamt,
+		einzelausstellungen,
+		provision_galerie: archetype.provisionGalerie > 0 ? jitter(archetype.provisionGalerie, 0.1) : 0,
+		provision_andere: archetype.provisionAndere > 0 ? jitter(archetype.provisionAndere, 0.2) : 0,
+		instagram_follower: jitter(archetype.follower, 0.3),
+		hauptkanal: pick(archetype.hauptkanal),
+		social_media: pick(archetype.socialMedia),
+		arbeitsweise: pick(archetype.arbeitsweise),
+		zusammenarbeit: pick(archetype.zusammenarbeit),
+		nebeneinkommen: pick(archetype.nebeneinkommen)
+	};
+}
+
 function generateProfiles(): ArtistProfile[] {
-	const profiles: ArtistProfile[] = [];
-
-	// 1-3: Gallery stars — established, high prices, major exhibitions
-	for (let i = 0; i < 3; i++) {
-		profiles.push({
-			einkommen_gesamt: jitter(85000, 0.3),
-			einkommen_ausstellungen: jitter(60000, 0.3),
-			einkommen_auftraege: jitter(15000, 0.4),
-			einkommen_online: jitter(3000, 0.5),
-			unterstuetzung_familie: 0,
-			foerderungen: jitter(5000, 0.6),
-			ausgaben_gesamt: jitter(2200, 0.2),
-			ausgaben_material: jitter(6000, 0.3),
-			werke_verkauft: jitter(12, 0.3),
-			preis_max: jitter(18000, 0.4),
-			preis_min: jitter(2500, 0.3),
-			preis_durchschnitt: jitter(7000, 0.3),
-			ausstellungen_gesamt: jitter(45, 0.2),
-			einzelausstellungen: jitter(12, 0.3),
-			provision_galerie: jitter(50, 0.1),
-			provision_andere: jitter(15, 0.3),
-			instagram_follower: jitter(8000, 0.4),
-			hauptkanal: 'Galerie',
-			social_media: pick(['Instagram', 'Instagram', 'LinkedIn']),
-			arbeitsweise: pick(['Allein', 'Mit Assistent:in(nen)']),
-			zusammenarbeit: 'Selten (1–2× im Jahr)',
-			nebeneinkommen: 'Nein, lebe nur von der Kunst'
-		});
-	}
-
-	// 4-6: Mid-career established — steady, moderate income
-	for (let i = 0; i < 3; i++) {
-		profiles.push({
-			einkommen_gesamt: jitter(35000, 0.3),
-			einkommen_ausstellungen: jitter(18000, 0.3),
-			einkommen_auftraege: jitter(10000, 0.4),
-			einkommen_online: jitter(4000, 0.5),
-			unterstuetzung_familie: jitter(3000, 0.5),
-			foerderungen: jitter(8000, 0.4),
-			ausgaben_gesamt: jitter(1200, 0.25),
-			ausgaben_material: jitter(3500, 0.3),
-			werke_verkauft: jitter(18, 0.3),
-			preis_max: jitter(5000, 0.4),
-			preis_min: jitter(600, 0.3),
-			preis_durchschnitt: jitter(2000, 0.3),
-			ausstellungen_gesamt: jitter(28, 0.2),
-			einzelausstellungen: jitter(6, 0.3),
-			provision_galerie: jitter(45, 0.1),
-			provision_andere: jitter(20, 0.3),
-			instagram_follower: jitter(3500, 0.4),
-			hauptkanal: pick(['Galerie', 'Galerie', 'Kunstmessen']),
-			social_media: 'Instagram',
-			arbeitsweise: 'Allein',
-			zusammenarbeit: pick(['Selten (1–2× im Jahr)', 'Regelmäßig (monatlich)']),
-			nebeneinkommen: pick(['Nein, lebe nur von der Kunst', 'Ja, unter 500 €/Monat'])
-		});
-	}
-
-	// 7-9: Emerging artists — few exhibitions, some grants, low prices
-	for (let i = 0; i < 3; i++) {
-		profiles.push({
-			einkommen_gesamt: jitter(9000, 0.4),
-			einkommen_ausstellungen: jitter(3000, 0.5),
-			einkommen_auftraege: jitter(2000, 0.5),
-			einkommen_online: jitter(1500, 0.5),
-			unterstuetzung_familie: jitter(8000, 0.4),
-			foerderungen: jitter(6000, 0.4),
-			ausgaben_gesamt: jitter(700, 0.3),
-			ausgaben_material: jitter(2000, 0.3),
-			werke_verkauft: jitter(8, 0.4),
-			preis_max: jitter(1800, 0.4),
-			preis_min: jitter(200, 0.4),
-			preis_durchschnitt: jitter(700, 0.3),
-			ausstellungen_gesamt: jitter(7, 0.4),
-			einzelausstellungen: jitter(1, 0.5),
-			provision_galerie: jitter(40, 0.15),
-			provision_andere: jitter(15, 0.4),
-			instagram_follower: jitter(1800, 0.5),
-			hauptkanal: pick(['Galerie', 'Direkt aus dem Atelier']),
-			social_media: 'Instagram',
-			arbeitsweise: 'Allein',
-			zusammenarbeit: pick(['Selten (1–2× im Jahr)', 'Regelmäßig (monatlich)']),
-			nebeneinkommen: pick(['Ja, 500–1500 €/Monat', 'Ja, über 1500 €/Monat'])
-		});
-	}
-
-	// 10-12: Social media artists — huge following, direct sales, lower prices, high volume
-	for (let i = 0; i < 3; i++) {
-		profiles.push({
-			einkommen_gesamt: jitter(42000, 0.3),
-			einkommen_ausstellungen: jitter(5000, 0.5),
-			einkommen_auftraege: jitter(8000, 0.4),
-			einkommen_online: jitter(25000, 0.3),
-			unterstuetzung_familie: 0,
-			foerderungen: jitter(2000, 0.6),
-			ausgaben_gesamt: jitter(900, 0.3),
-			ausgaben_material: jitter(4000, 0.3),
-			werke_verkauft: jitter(85, 0.3),
-			preis_max: jitter(1200, 0.4),
-			preis_min: jitter(50, 0.4),
-			preis_durchschnitt: jitter(350, 0.3),
-			ausstellungen_gesamt: jitter(5, 0.5),
-			einzelausstellungen: jitter(1, 0.8),
-			provision_galerie: 0,
-			provision_andere: jitter(12, 0.3),
-			instagram_follower: jitter(45000, 0.4),
-			hauptkanal: pick(['Eigene Website', 'Online-Plattform (Etsy, Artsy …)']),
-			social_media: pick(['Instagram', 'TikTok', 'TikTok']),
-			arbeitsweise: pick(['Allein', 'Mit Assistent:in(nen)']),
-			zusammenarbeit: 'Nie',
-			nebeneinkommen: pick(['Nein, lebe nur von der Kunst', 'Ja, unter 500 €/Monat'])
-		});
-	}
-
-	// 13-15: Grant-dependent — lots of Förderungen, institutional, few commercial sales
-	for (let i = 0; i < 3; i++) {
-		profiles.push({
-			einkommen_gesamt: jitter(22000, 0.3),
-			einkommen_ausstellungen: jitter(4000, 0.5),
-			einkommen_auftraege: jitter(2000, 0.5),
-			einkommen_online: jitter(500, 0.6),
-			unterstuetzung_familie: jitter(4000, 0.4),
-			foerderungen: jitter(18000, 0.3),
-			ausgaben_gesamt: jitter(1100, 0.25),
-			ausgaben_material: jitter(3000, 0.3),
-			werke_verkauft: jitter(4, 0.5),
-			preis_max: jitter(3500, 0.4),
-			preis_min: jitter(800, 0.4),
-			preis_durchschnitt: jitter(2000, 0.3),
-			ausstellungen_gesamt: jitter(18, 0.3),
-			einzelausstellungen: jitter(4, 0.4),
-			provision_galerie: jitter(40, 0.2),
-			provision_andere: jitter(10, 0.5),
-			instagram_follower: jitter(2200, 0.4),
-			hauptkanal: pick(['Galerie', 'Kunstmessen']),
-			social_media: pick(['Instagram', 'LinkedIn']),
-			arbeitsweise: 'Allein',
-			zusammenarbeit: 'Regelmäßig (monatlich)',
-			nebeneinkommen: pick(['Ja, unter 500 €/Monat', 'Ja, 500–1500 €/Monat'])
-		});
-	}
-
-	// 16-18: Part-time/hobby artists — other main income, art is side
-	for (let i = 0; i < 3; i++) {
-		profiles.push({
-			einkommen_gesamt: jitter(4000, 0.5),
-			einkommen_ausstellungen: jitter(1500, 0.6),
-			einkommen_auftraege: jitter(1000, 0.6),
-			einkommen_online: jitter(800, 0.6),
-			unterstuetzung_familie: 0,
-			foerderungen: jitter(500, 0.8),
-			ausgaben_gesamt: jitter(400, 0.3),
-			ausgaben_material: jitter(1200, 0.4),
-			werke_verkauft: jitter(5, 0.5),
-			preis_max: jitter(800, 0.5),
-			preis_min: jitter(100, 0.5),
-			preis_durchschnitt: jitter(400, 0.4),
-			ausstellungen_gesamt: jitter(4, 0.5),
-			einzelausstellungen: 0,
-			provision_galerie: 0,
-			provision_andere: jitter(10, 0.5),
-			instagram_follower: jitter(600, 0.5),
-			hauptkanal: pick(['Direkt aus dem Atelier', 'Online-Plattform (Etsy, Artsy …)']),
-			social_media: pick(['Instagram', 'Keine', 'Keine']),
-			arbeitsweise: 'Allein',
-			zusammenarbeit: 'Nie',
-			nebeneinkommen: 'Ja, über 1500 €/Monat'
-		});
-	}
-
-	// 19-21: Commercial/commission artists — high output, assistants
-	for (let i = 0; i < 3; i++) {
-		profiles.push({
-			einkommen_gesamt: jitter(65000, 0.25),
-			einkommen_ausstellungen: jitter(10000, 0.4),
-			einkommen_auftraege: jitter(40000, 0.25),
-			einkommen_online: jitter(8000, 0.4),
-			unterstuetzung_familie: 0,
-			foerderungen: 0,
-			ausgaben_gesamt: jitter(2800, 0.2),
-			ausgaben_material: jitter(8000, 0.3),
-			werke_verkauft: jitter(30, 0.3),
-			preis_max: jitter(8000, 0.3),
-			preis_min: jitter(1000, 0.3),
-			preis_durchschnitt: jitter(3000, 0.25),
-			ausstellungen_gesamt: jitter(15, 0.3),
-			einzelausstellungen: jitter(3, 0.4),
-			provision_galerie: jitter(35, 0.2),
-			provision_andere: jitter(10, 0.4),
-			instagram_follower: jitter(5500, 0.4),
-			hauptkanal: pick(['Direkt aus dem Atelier', 'Eigene Website']),
-			social_media: pick(['Instagram', 'LinkedIn']),
-			arbeitsweise: 'Mit Assistent:in(nen)',
-			zusammenarbeit: 'Selten (1–2× im Jahr)',
-			nebeneinkommen: 'Nein, lebe nur von der Kunst'
-		});
-	}
-
-	// 22-24: Struggling artists — very low income, lots of support needed
-	for (let i = 0; i < 3; i++) {
-		profiles.push({
-			einkommen_gesamt: jitter(2500, 0.5),
-			einkommen_ausstellungen: jitter(500, 0.7),
-			einkommen_auftraege: jitter(800, 0.6),
-			einkommen_online: jitter(300, 0.7),
-			unterstuetzung_familie: jitter(15000, 0.3),
-			foerderungen: jitter(2000, 0.6),
-			ausgaben_gesamt: jitter(500, 0.3),
-			ausgaben_material: jitter(1500, 0.4),
-			werke_verkauft: jitter(3, 0.6),
-			preis_max: jitter(600, 0.5),
-			preis_min: jitter(80, 0.5),
-			preis_durchschnitt: jitter(300, 0.4),
-			ausstellungen_gesamt: jitter(3, 0.5),
-			einzelausstellungen: 0,
-			provision_galerie: 0,
-			provision_andere: jitter(15, 0.5),
-			instagram_follower: jitter(400, 0.6),
-			hauptkanal: pick(['Direkt aus dem Atelier', 'Online-Plattform (Etsy, Artsy …)']),
-			social_media: pick(['Instagram', 'TikTok', 'Keine']),
-			arbeitsweise: 'Allein',
-			zusammenarbeit: pick(['Nie', 'Selten (1–2× im Jahr)']),
-			nebeneinkommen: pick(['Ja, 500–1500 €/Monat', 'Ja, über 1500 €/Monat'])
-		});
-	}
-
-	// 25-27: Print/volume sellers — many cheap works, mostly online
-	for (let i = 0; i < 3; i++) {
-		profiles.push({
-			einkommen_gesamt: jitter(28000, 0.3),
-			einkommen_ausstellungen: jitter(2000, 0.5),
-			einkommen_auftraege: jitter(3000, 0.5),
-			einkommen_online: jitter(20000, 0.3),
-			unterstuetzung_familie: 0,
-			foerderungen: 0,
-			ausgaben_gesamt: jitter(600, 0.3),
-			ausgaben_material: jitter(3500, 0.3),
-			werke_verkauft: jitter(150, 0.25),
-			preis_max: jitter(400, 0.4),
-			preis_min: jitter(25, 0.4),
-			preis_durchschnitt: jitter(150, 0.3),
-			ausstellungen_gesamt: jitter(3, 0.5),
-			einzelausstellungen: 0,
-			provision_galerie: 0,
-			provision_andere: jitter(18, 0.3),
-			instagram_follower: jitter(22000, 0.4),
-			hauptkanal: pick(['Online-Plattform (Etsy, Artsy …)', 'Eigene Website']),
-			social_media: pick(['Instagram', 'TikTok']),
-			arbeitsweise: 'Allein',
-			zusammenarbeit: 'Nie',
-			nebeneinkommen: pick(['Nein, lebe nur von der Kunst', 'Ja, unter 500 €/Monat'])
-		});
-	}
-
-	// 28-30: Collective/team artists — shared exhibitions, moderate income, collaborative
-	for (let i = 0; i < 3; i++) {
-		profiles.push({
-			einkommen_gesamt: jitter(18000, 0.3),
-			einkommen_ausstellungen: jitter(8000, 0.4),
-			einkommen_auftraege: jitter(5000, 0.4),
-			einkommen_online: jitter(2000, 0.5),
-			unterstuetzung_familie: jitter(5000, 0.5),
-			foerderungen: jitter(10000, 0.3),
-			ausgaben_gesamt: jitter(800, 0.3),
-			ausgaben_material: jitter(2500, 0.3),
-			werke_verkauft: jitter(10, 0.4),
-			preis_max: jitter(2500, 0.4),
-			preis_min: jitter(300, 0.4),
-			preis_durchschnitt: jitter(1200, 0.3),
-			ausstellungen_gesamt: jitter(20, 0.3),
-			einzelausstellungen: jitter(2, 0.5),
-			provision_galerie: jitter(40, 0.2),
-			provision_andere: jitter(10, 0.5),
-			instagram_follower: jitter(3000, 0.5),
-			hauptkanal: pick(['Galerie', 'Kunstmessen']),
-			social_media: 'Instagram',
-			arbeitsweise: 'Im Kollektiv/Team',
-			zusammenarbeit: 'Hauptsächlich im Team',
-			nebeneinkommen: pick(['Ja, unter 500 €/Monat', 'Ja, 500–1500 €/Monat'])
-		});
-	}
-
-	return profiles;
+	return ARCHETYPES.flatMap((archetype) =>
+		Array.from({ length: archetype.count }, () => buildProfile(archetype))
+	);
 }
 
 function clampAnswer(questionId: string, value: number): number {

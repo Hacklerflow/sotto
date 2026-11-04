@@ -9,5 +9,5 @@ export const load: PageServerLoad = async ({ params }) => {
 	if (!UUID_PATTERN.test(params.id)) error(404, 'Umfrage nicht gefunden');
 	const results = await loadSurveyResults(params.id);
 	if (results.state === 'not-found') error(404, 'Umfrage nicht gefunden');
-	return { results };
+	return { results, surveyId: params.id };
 };

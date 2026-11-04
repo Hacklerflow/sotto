@@ -222,6 +222,84 @@ function aggregate(
 	};
 }
 
+export function aggregateSingleDimension(
+	questions: Question[],
+	answers: Answers[],
+	xAxisId: string,
+	yAxisId: string,
+	chartType: ChartType
+): AggregatedDimension {
+	const findQuestion = (id: string): Question => {
+		const question = questions.find((candidate) => candidate.id === id);
+		if (!question) throw new Error(`unknown question id: ${id}`);
+		return question;
+	};
+	const { suppressed } = findSuppressedCategories(questions, answers);
+	const xQuestion = findQuestion(xAxisId);
+	const yQuestion = findQuestion(yAxisId);
+	const xLabeler = buildLabeler(xQuestion, answers);
+	const yLabeler = buildLabeler(yQuestion, answers);
+
+	const cells = new Map<string, { x: string; y: string; count: number }>();
+	for (const response of answers) {
+		const xLabels = xLabeler(response);
+		const yLabels = yLabeler(response);
+		if (!xLabels || !yLabels) continue;
+		for (const x of xLabels) {
+			for (const y of yLabels) {
+				if (
+					suppressed.has(suppressionKey(xQuestion.id, x)) ||
+					suppressed.has(suppressionKey(yQuestion.id, y))
+				)
+					continue;
+				const key = JSON.stringify([x, y]);
+				const cell = cells.get(key) ?? { x, y, count: 0 };
+				cell.count += 1;
+				cells.set(key, cell);
+			}
+		}
+	}
+
+	const points: AggregatedPoint[] = [];
+	let suppressedCells = 0;
+	for (const cell of cells.values()) {
+		if (cell.count < MINIMUM_GROUP_SIZE) {
+			suppressedCells += 1;
+			continue;
+		}
+		points.push({ x: cell.x, y: cell.y, count: cell.count });
+	}
+
+	let correlation: number | null = null;
+	if (isNumericQuestion(xQuestion) && isNumericQuestion(yQuestion)) {
+		const pairs: [number, number][] = [];
+		for (const response of answers) {
+			const x = response[xQuestion.id];
+			const y = response[yQuestion.id];
+			if (typeof x === 'number' && typeof y === 'number') pairs.push([x, y]);
+		}
+		correlation = pearsonCorrelation(pairs);
+	}
+
+	const result: AggregatedDimension = {
+		index: 0,
+		chartType,
+		xAxis: xAxisId,
+		yAxis: yAxisId,
+		points,
+		correlation,
+		suppressedCells
+	};
+	if (chartType === 'sankey') {
+		result.flows = points.map((point) => ({
+			source: point.x,
+			target: point.y,
+			count: point.count
+		}));
+	}
+	return result;
+}
+
 export class AlreadyFrozenError extends Error {
 	constructor() {
 		super('survey already frozen');
