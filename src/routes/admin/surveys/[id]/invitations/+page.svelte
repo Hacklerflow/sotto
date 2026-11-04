@@ -10,9 +10,15 @@
 	const surveyId = page.params.id;
 	let groups = $state<Group[]>([]);
 	let selectedGroupId = $state('');
+	interface Invitation {
+		email: string;
+		token: string;
+	}
+
 	let message = $state('');
 	let progress = $state<{ invited: number; responded: number } | null>(null);
 	let sending = $state(false);
+	let lastCreated = $state<Invitation[]>([]);
 
 	async function loadProgress() {
 		const response = await adminFetch(`/api/admin/surveys/${surveyId}/progress`);
@@ -43,7 +49,8 @@
 				message = `Fehler ${response.status}: ${errorText}`;
 				return;
 			}
-			const created: unknown[] = await response.json();
+			const created: Invitation[] = await response.json();
+			lastCreated = created;
 			message = `${created.length} Einladungen erstellt.`;
 			selectedGroupId = '';
 			await loadProgress();
@@ -78,7 +85,38 @@
 </form>
 {#if message}<p role="status">{message}</p>{/if}
 
+{#if lastCreated.length > 0}
+	<ul class="invitation-list">
+		{#each lastCreated as invitation}
+			<li>
+				<strong>{invitation.email}</strong>
+				<code>{window.location.origin}/invite/{invitation.token}</code>
+			</li>
+		{/each}
+	</ul>
+{/if}
+
 <style>
+	.invitation-list {
+		list-style: none;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		margin-top: var(--space-2);
+	}
+	.invitation-list li {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		padding: var(--space-2) var(--space-3);
+		border: 1px solid var(--color-primary);
+		border-radius: 8px;
+	}
+	.invitation-list code {
+		font-size: var(--font-size-small);
+		word-break: break-all;
+	}
 	form {
 		display: grid;
 		gap: var(--space-2);

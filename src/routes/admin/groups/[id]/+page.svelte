@@ -8,11 +8,18 @@
 		email: string;
 	}
 
+	interface SurveyRef {
+		id: string;
+		title: string;
+		status: string;
+	}
+
 	interface GroupDetail {
 		id: string;
 		name: string;
 		createdAt: string;
 		members: Member[];
+		surveys: SurveyRef[];
 	}
 
 	let group = $state<GroupDetail | null>(null);
@@ -101,6 +108,19 @@
 			<button type="button" onclick={addMember} disabled={addingMember}>Hinzufügen</button>
 		</div>
 	</section>
+	{#if group.surveys.length > 0}
+		<section>
+			<h2>Umfragen ({group.surveys.length})</h2>
+			<ul class="survey-list">
+				{#each group.surveys as survey (survey.id)}
+					<li>
+						<a href="/admin/surveys/{survey.id}">{survey.title}</a>
+						<span class="status">{survey.status}</span>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/if}
 {/if}
 
 <style>
@@ -145,5 +165,29 @@
 	}
 	.add-member-form input {
 		flex: 1;
+	}
+	.survey-list {
+		list-style: none;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+	}
+	.survey-list li {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--space-2) var(--space-3);
+		border: 1px solid var(--color-primary);
+		border-radius: 8px;
+	}
+	.survey-list a {
+		font-weight: 600;
+	}
+	.status {
+		font-size: var(--font-size-small);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		opacity: 0.6;
 	}
 </style>

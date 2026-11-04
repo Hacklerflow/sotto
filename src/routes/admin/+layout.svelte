@@ -22,8 +22,12 @@
 <div class="admin">
 	{#if secret}
 		<header>
-			<strong>Sotto Admin</strong>
-			<a href="/admin/surveys/new">Neue Umfrage</a>
+			<a href="/admin" class="logo"><strong>Sotto</strong></a>
+			<nav>
+				<a href="/admin/surveys">Umfragen</a>
+				<a href="/admin/groups">Gruppen</a>
+				<a href="/admin/surveys/new">+ Neue Umfrage</a>
+			</nav>
 			<button type="button" onclick={signOut}>Abmelden</button>
 		</header>
 		{@render children()}
@@ -49,6 +53,16 @@
 		gap: var(--space-3);
 		align-items: center;
 		margin-bottom: var(--space-3);
+	}
+	.logo {
+		text-decoration: none;
+	}
+	nav {
+		display: flex;
+		gap: var(--space-2);
+	}
+	nav a {
+		font-size: var(--font-size-small);
 	}
 	header button {
 		margin-left: auto;

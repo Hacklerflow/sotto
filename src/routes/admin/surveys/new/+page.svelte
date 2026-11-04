@@ -5,11 +5,31 @@
 	import QuestionEditor from '../../../../lib/components/QuestionEditor.svelte';
 	import { validateSurveyConfig, type Dimension, type Question, type SurveyConfig } from '../../../../lib/types/survey';
 
+	interface Group {
+		id: string;
+		name: string;
+	}
+
+	interface Invitation {
+		email: string;
+		token: string;
+	}
+
 	let title = $state('');
 	let questions = $state<Question[]>([]);
 	let dimensions = $state<Dimension[]>([]);
+	let selectedGroupId = $state('');
+	let groups = $state<Group[]>([]);
 	let errorMessage = $state('');
 	let submitting = $state(false);
+	let createdInvitations = $state<Invitation[]>([]);
+	let createdSurveyId = $state('');
+
+	$effect(() => {
+		adminFetch('/api/admin/groups')
+			.then((response) => (response.ok ? response.json() : []))
+			.then((data) => (groups = data));
+	});
 
 	function cleanQuestions(): Question[] {
 		return $state.snapshot(questions).map((question) => ({
@@ -31,6 +51,10 @@
 			errorMessage = 'Titel fehlt.';
 			return;
 		}
+		if (!selectedGroupId) {
+			errorMessage = 'Bitte eine Gruppe auswählen.';
+			return;
+		}
 		let config: SurveyConfig;
 		try {
 			config = validateSurveyConfig(draft);
@@ -40,36 +64,89 @@
 		}
 		submitting = true;
 		try {
-			const response = await adminFetch('/api/admin/surveys', {
+			const surveyResponse = await adminFetch('/api/admin/surveys', {
 				method: 'POST',
 				body: JSON.stringify({ title: title.trim(), config })
 			});
-			if (!response.ok) {
+			if (!surveyResponse.ok) {
 				errorMessage =
-					response.status === 401
+					surveyResponse.status === 401
 						? 'Admin-Secret ungültig. Bitte abmelden und neu eingeben.'
-						: `Fehler ${response.status}`;
+						: `Fehler ${surveyResponse.status}`;
 				return;
 			}
-			const survey: { id: string } = await response.json();
-			await goto(`/admin/surveys/${survey.id}`);
+			const survey: { id: string } = await surveyResponse.json();
+			createdSurveyId = survey.id;
+
+			const inviteResponse = await adminFetch('/api/admin/invitations', {
+				method: 'POST',
+				body: JSON.stringify({ surveyId: survey.id, groupId: selectedGroupId })
+			});
+			if (inviteResponse.ok) {
+				createdInvitations = await inviteResponse.json();
+			}
 		} finally {
 			submitting = false;
 		}
 	}
+
+	function invitationUrl(token: string): string {
+		return `${window.location.origin}/invite/${token}`;
+	}
+
+	async function copyAllLinks() {
+		const text = createdInvitations
+			.map((invitation) => `${invitation.email}: ${invitationUrl(invitation.token)}`)
+			.join('\n');
+		await navigator.clipboard.writeText(text);
+	}
 </script>
 
-<h1>Neue Umfrage</h1>
-<form onsubmit={submit}>
-	<label>
-		Titel
-		<input type="text" bind:value={title} />
-	</label>
-	<QuestionEditor bind:questions />
-	<DimensionMapper {questions} bind:dimensions />
-	{#if errorMessage}<p role="alert">{errorMessage}</p>{/if}
-	<button type="submit" disabled={submitting}>Umfrage erstellen</button>
-</form>
+{#if createdInvitations.length > 0}
+	<h1>Umfrage erstellt</h1>
+	<p>{createdInvitations.length} Einladungen verschickt. Teile diese Links mit den Teilnehmern:</p>
+	<ul class="invitation-list">
+		{#each createdInvitations as invitation}
+			<li>
+				<strong>{invitation.email}</strong>
+				<code>{invitationUrl(invitation.token)}</code>
+			</li>
+		{/each}
+	</ul>
+	<div class="actions">
+		<button type="button" onclick={copyAllLinks}>Alle Links kopieren</button>
+		<a href="/admin/surveys/{createdSurveyId}">Zur Umfrage</a>
+	</div>
+{:else}
+	<h1>Neue Umfrage</h1>
+	<form onsubmit={submit}>
+		<label>
+			Titel
+			<input type="text" bind:value={title} />
+		</label>
+
+		<label>
+			Gruppe
+			<select bind:value={selectedGroupId}>
+				<option value="">— Gruppe wählen —</option>
+				{#each groups as group (group.id)}
+					<option value={group.id}>{group.name}</option>
+				{/each}
+			</select>
+		</label>
+		{#if groups.length === 0}
+			<p class="hint">
+				Noch keine Gruppen vorhanden.
+				<a href="/admin/groups/new">Zuerst eine Gruppe erstellen</a>
+			</p>
+		{/if}
+
+		<QuestionEditor bind:questions />
+		<DimensionMapper {questions} bind:dimensions />
+		{#if errorMessage}<p role="alert">{errorMessage}</p>{/if}
+		<button type="submit" disabled={submitting}>Umfrage erstellen & einladen</button>
+	</form>
+{/if}
 
 <style>
 	form {
@@ -79,5 +156,46 @@
 	label {
 		display: grid;
 		gap: 0.25rem;
+	}
+	select {
+		padding: var(--space-1) var(--space-2);
+		border: 2px solid var(--color-primary);
+		border-radius: 8px;
+		font-size: inherit;
+	}
+	.hint {
+		font-size: var(--font-size-small);
+		opacity: 0.7;
+	}
+	.invitation-list {
+		list-style: none;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+	}
+	.invitation-list li {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		padding: var(--space-2) var(--space-3);
+		border: 1px solid var(--color-primary);
+		border-radius: 8px;
+	}
+	.invitation-list code {
+		font-size: var(--font-size-small);
+		word-break: break-all;
+	}
+	.actions {
+		display: flex;
+		gap: var(--space-2);
+		margin-top: var(--space-2);
+	}
+	.actions a {
+		padding: var(--space-2) var(--space-3);
+		border: 2px solid var(--color-primary);
+		border-radius: 12px;
+		font-weight: 600;
+		text-decoration: none;
 	}
 </style>
