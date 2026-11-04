@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793733769384,
+      "tag": "0000_true_scream",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793734346307,
+      "tag": "0001_acoustic_young_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793735196689,
+      "tag": "0002_messy_spyke",
+      "breakpoints": true
+    }
+  ]
+}

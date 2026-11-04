@@ -1,0 +1,1 @@
+ALTER TABLE "signing_grants" DROP COLUMN "granted_at";

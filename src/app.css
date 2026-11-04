@@ -1,0 +1,101 @@
+:root {
+	--color-bg: #fff;
+	--color-primary: #000;
+	--color-accent-red: #ff2d55;
+	--color-accent-blue: #007aff;
+	--color-accent-purple: #5856d6;
+	--color-accent-green: #34c759;
+	--color-accent-yellow: #ffcc00;
+
+	--font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--font-size-h1: 96px;
+	--font-size-h2: 64px;
+	--font-size-h3: 40px;
+	--font-size-h4: 28px;
+	--font-size-h5: 20px;
+	--font-size-body: 16px;
+	--font-size-small: 14px;
+
+	--space-1: 0.5rem;
+	--space-2: 1rem;
+	--space-3: 1.5rem;
+	--space-4: 2.5rem;
+	--content-max-width: 40rem;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--color-bg);
+	color: var(--color-primary);
+	font-family: var(--font-family);
+	font-size: var(--font-size-body);
+	line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5 {
+	margin: 0 0 var(--space-2);
+	font-weight: 800;
+	line-height: 1.05;
+	letter-spacing: -0.02em;
+}
+
+/* Mobile first: headlines scale down on narrow viewports (375px). */
+h1 { font-size: clamp(2.5rem, 12vw, var(--font-size-h1)); }
+h2 { font-size: clamp(2rem, 9vw, var(--font-size-h2)); }
+h3 { font-size: clamp(1.5rem, 6vw, var(--font-size-h3)); }
+h4 { font-size: var(--font-size-h4); }
+h5 { font-size: var(--font-size-h5); }
+
+small { font-size: var(--font-size-small); }
+
+a { color: var(--color-accent-blue); }
+
+.page {
+	max-width: var(--content-max-width);
+	margin: 0 auto;
+	padding: var(--space-3) var(--space-2);
+}
+
+@media (min-width: 768px) {
+	.page { padding: var(--space-4) var(--space-3); }
+}
+
+/* Mobile polish: touch targets, no page-level horizontal scroll, scrollable charts. */
+html, body { overflow-x: hidden; }
+
+button,
+input:not([type='checkbox']):not([type='radio']),
+select,
+textarea,
+[role='button'] {
+	min-height: 48px;
+	font-size: max(1rem, 16px);
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+	width: 24px;
+	height: 24px;
+}
+
+label { display: block; padding: var(--space-1) 0; }
+
+img, svg, video { max-width: 100%; height: auto; }
+
+.chart-scroll,
+[class*='chart'] { max-width: 100%; overflow-x: auto; }
+
+@media (max-width: 600px) {
+	body { font-size: 1rem; }
+	h4 { font-size: 1.375rem; }
+}
