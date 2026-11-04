@@ -1,4 +1,4 @@
-<main class="page landing">
+<div class="landing">
 	<p class="logo">sotto</p>
 	<h1>sotto voce</h1>
 	<p class="tagline">Die Wahrheit, die man nur leise sagt.</p>
@@ -8,8 +8,11 @@
 		deiner Identität getrennt. Ergebnisse erscheinen erst, wenn genug Menschen teilgenommen haben, damit
 		sich niemand herauslesen lässt.
 	</p>
-	<a class="trust-link" href="/trust">So funktioniert die Anonymität</a>
-</main>
+	<div class="actions">
+		<a class="trust-link" href="/trust">So funktioniert die Anonymität</a>
+		<a class="admin-link" href="/admin">Admin-Bereich</a>
+	</div>
+</div>
 
 <style>
 	.logo {
@@ -30,10 +33,22 @@
 		color: var(--color-accent-red);
 		margin: var(--space-1) 0 var(--space-3);
 	}
-	.trust-link {
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+		margin-top: var(--space-2);
+	}
+	.trust-link,
+	.admin-link {
 		display: inline-flex;
 		align-items: center;
 		min-height: 48px;
 		font-weight: 700;
+	}
+	.admin-link {
+		color: var(--color-primary);
+		opacity: 0.5;
+		font-weight: 400;
 	}
 </style>
