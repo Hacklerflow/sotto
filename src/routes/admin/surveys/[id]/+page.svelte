@@ -3,18 +3,24 @@
 	import { adminFetch } from '../../../../lib/client/admin-session';
 
 	const surveyId = page.params.id;
+	let title = $state<string | null>(null);
 	let progress = $state<{ invited: number; responded: number } | null>(null);
 
 	$effect(() => {
+		adminFetch(`/api/admin/surveys/${surveyId}`)
+			.then((response) => (response.ok ? response.json() : null))
+			.then((data) => {
+				if (data) title = data.title;
+			});
 		adminFetch(`/api/admin/surveys/${surveyId}/progress`)
 			.then((response) => (response.ok ? response.json() : null))
 			.then((data) => (progress = data));
 	});
 </script>
 
-<h1>Umfrage {surveyId}</h1>
-<p>Die Umfrage wurde angelegt.</p>
+<h1>{title ?? 'Umfrage …'}</h1>
 {#if progress}
 	<p>{progress.invited} eingeladen, {progress.responded} Antworten.</p>
 {/if}
 <a href="/admin/surveys/{surveyId}/invitations">Teilnehmer einladen</a>
+<a href="/survey/{surveyId}/results">Ergebnisse ansehen</a>

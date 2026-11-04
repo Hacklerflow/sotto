@@ -86,6 +86,18 @@ export async function redeemInvitation(
 	});
 }
 
+export async function getSurveyById(
+	surveyId: string
+): Promise<Survey | null> {
+	const [row] = await answerDb.select().from(surveys).where(eq(surveys.id, surveyId));
+	return row ? { ...row, config: row.config as SurveyConfig } : null;
+}
+
+export async function listSurveys(): Promise<Survey[]> {
+	const rows = await answerDb.select().from(surveys);
+	return rows.map((row) => ({ ...row, config: row.config as SurveyConfig }));
+}
+
 // The only function that reads both databases; it returns counts only, never identities.
 export async function getSurveyProgress(
 	surveyId: string

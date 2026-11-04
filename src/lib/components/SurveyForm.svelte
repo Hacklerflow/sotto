@@ -15,6 +15,7 @@
 	let values = $state<Record<string, AnswerValue>>(
 		Object.fromEntries(config.questions.map((question) => [question.id, null]))
 	);
+	let activeStep = $state(0);
 
 	const answeredCount = $derived(
 		config.questions.filter((question) => values[question.id] != null).length
@@ -23,12 +24,9 @@
 	const complete = $derived(answeredCount === total);
 	const progressPercent = $derived(total === 0 ? 100 : Math.round((answeredCount / total) * 100));
 
-	function scrollToNext(index: number): void {
-		document.getElementById(`step-${index + 1}`)?.scrollIntoView({ behavior: 'smooth' });
-	}
-
-	function scrollToPrevious(index: number): void {
-		document.getElementById(`step-${index - 1}`)?.scrollIntoView({ behavior: 'smooth' });
+	function scrollToStep(index: number): void {
+		activeStep = index;
+		document.getElementById(`step-${index}`)?.scrollIntoView({ behavior: 'smooth' });
 	}
 
 	function formatAnswer(value: AnswerValue): string {
@@ -58,12 +56,12 @@
 	</div>
 
 	{#each config.questions as question, index (question.id)}
-		<section class="step" id="step-{index}">
+		<section class="step" class:active={activeStep === index} id="step-{index}">
 			<p class="step-count">Frage {index + 1} von {total}</p>
 			<QuestionInput {question} bind:value={values[question.id]} />
 			<div class="step-nav">
 				{#if index > 0}
-					<button type="button" class="secondary" onclick={() => scrollToPrevious(index)}>
+					<button type="button" class="secondary" onclick={() => scrollToStep(index - 1)}>
 						Zurück
 					</button>
 				{/if}
@@ -72,7 +70,7 @@
 						type="button"
 						class="primary"
 						disabled={values[question.id] == null}
-						onclick={() => scrollToNext(index)}
+						onclick={() => scrollToStep(index + 1)}
 					>
 						Weiter
 					</button>
@@ -81,7 +79,7 @@
 		</section>
 	{/each}
 
-	<section class="step summary" id="step-{total}" aria-label="Zusammenfassung">
+	<section class="step summary" class:active={activeStep === total} id="step-{total}" aria-label="Zusammenfassung">
 		<h2>Zusammenfassung</h2>
 		<dl>
 			{#each config.questions as question (question.id)}
@@ -121,6 +119,11 @@
 		gap: var(--space-3);
 		padding: var(--space-3) 0;
 		scroll-margin-top: 8px;
+		opacity: 0.3;
+		transition: opacity 0.3s;
+	}
+	.step.active {
+		opacity: 1;
 	}
 	.step-count {
 		font-size: var(--font-size-small);

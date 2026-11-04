@@ -1,8 +1,13 @@
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { isAdminRequest } from '../../../../lib/server/auth';
-import { createSurvey } from '../../../../lib/server/invitations';
+import { createSurvey, listSurveys } from '../../../../lib/server/invitations';
 import { validateSurveyConfig, type SurveyConfig } from '../../../../lib/types/survey';
+
+export const GET: RequestHandler = async ({ request }) => {
+	if (!isAdminRequest(request)) error(401, 'Unauthorized');
+	return json(await listSurveys());
+};
 
 export const POST: RequestHandler = async ({ request }) => {
 	if (!isAdminRequest(request)) error(401, 'Unauthorized');
