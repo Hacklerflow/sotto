@@ -6,6 +6,7 @@
 	import ScatterChart from '../../../../lib/components/charts/ScatterChart.svelte';
 	import BubbleChart from '../../../../lib/components/charts/BubbleChart.svelte';
 	import BarChart from '../../../../lib/components/charts/BarChart.svelte';
+	import DistributionBar from '../../../../lib/components/charts/DistributionBar.svelte';
 	import type { SurveyResults } from '../../../../lib/server/results';
 
 	let { data }: { data: { results: Exclude<SurveyResults, { state: 'not-found' }> } } = $props();
@@ -65,6 +66,15 @@
 				</section>
 			{/if}
 		{/each}
+
+		{#if aggregatedData.categories?.length > 0}
+			{#each aggregatedData.categories as distribution (distribution.questionId)}
+				<section>
+					<h2>{distribution.questionText}</h2>
+					<DistributionBar {distribution} />
+				</section>
+			{/each}
+		{/if}
 
 		{#each aggregatedData.dimensions as dimension (dimension.index)}
 			{#if dimension.correlation !== null && insightType(dimension.correlation)}

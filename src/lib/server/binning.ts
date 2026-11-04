@@ -19,7 +19,12 @@ function quantile(sorted: number[], fraction: number): number {
 }
 
 function formatNumber(value: number): string {
-	return String(Math.round(value * 100) / 100);
+	const rounded = Math.round(value * 100) / 100;
+	if (Math.abs(rounded) >= 1_000_000) return `${+(rounded / 1_000_000).toFixed(1)}M`;
+	if (Math.abs(rounded) >= 10_000) return `${+(rounded / 1_000).toFixed(1)}k`;
+	if (Math.abs(rounded) >= 1_000) return `${+(rounded / 1_000).toFixed(1)}k`;
+	if (Number.isInteger(rounded)) return String(rounded);
+	return String(rounded);
 }
 
 // Outer edges are widened to a power-of-ten multiple of the value range so a lone

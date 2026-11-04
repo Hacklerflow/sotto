@@ -25,9 +25,17 @@ export type AggregatedDimension = {
 	suppressedCells: number;
 };
 
+export type CategoryDistribution = {
+	questionId: string;
+	questionText: string;
+	entries: { label: string; count: number }[];
+	suppressedCount: number;
+};
+
 export type AggregatedData = {
 	responseCount: number;
 	dimensions: AggregatedDimension[];
+	categories: CategoryDistribution[];
 	suppressedCategories: string[];
 };
 
@@ -176,9 +184,40 @@ function aggregate(
 		return result;
 	});
 
+	const categories: CategoryDistribution[] = [];
+	for (const question of config.questions) {
+		if (isNumericQuestion(question)) continue;
+		const counts = new Map<string, number>();
+		for (const response of answers) {
+			const value = response[question.id];
+			const chosen = typeof value === 'string' ? [value] : Array.isArray(value) ? value : [];
+			for (const option of chosen)
+				counts.set(String(option), (counts.get(String(option)) ?? 0) + 1);
+		}
+		const entries: { label: string; count: number }[] = [];
+		let suppressedCount = 0;
+		for (const [option, count] of counts) {
+			if (suppressed.has(suppressionKey(question.id, option))) {
+				suppressedCount += count;
+			} else {
+				entries.push({ label: option, count });
+			}
+		}
+		entries.sort((a, b) => b.count - a.count);
+		if (entries.length > 0) {
+			categories.push({
+				questionId: question.id,
+				questionText: question.text,
+				entries,
+				suppressedCount
+			});
+		}
+	}
+
 	return {
 		responseCount: answers.length,
 		dimensions,
+		categories,
 		suppressedCategories: [...suppressedOptions].sort()
 	};
 }
