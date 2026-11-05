@@ -21,6 +21,8 @@
 	let freezeSuccess = $state(false);
 	let copied = $state(false);
 	let toggling = $state(false);
+	let deleting = $state(false);
+	let confirmDelete = $state(false);
 
 	$effect(() => {
 		adminFetch(`/api/admin/surveys/${surveyId}`)
@@ -95,6 +97,18 @@
 		setTimeout(() => (copied = false), 2000);
 	}
 
+	async function deleteSurvey() {
+		deleting = true;
+		try {
+			const response = await adminFetch(`/api/admin/surveys/${surveyId}`, { method: 'DELETE' });
+			if (response.ok) {
+				window.location.href = '/admin/surveys';
+			}
+		} finally {
+			deleting = false;
+		}
+	}
+
 	async function toggleStatus() {
 		if (!survey) return;
 		toggling = true;
@@ -147,12 +161,21 @@
 	<nav class="actions">
 		<a href="/admin/surveys/{surveyId}/invitations" class="action-btn">Teilnehmer einladen</a>
 		<a href="/survey/{surveyId}/results" class="action-btn">Ergebnisse ansehen</a>
+		<a href="/api/admin/surveys/{surveyId}/export" class="action-btn secondary" download>CSV-Export</a>
 		<button type="button" class="action-btn secondary" onclick={copyResultsLink}>
 			{copied ? 'Kopiert!' : 'Ergebnis-Link kopieren'}
 		</button>
 		<button type="button" class="action-btn" class:danger={survey.status === 'open'} disabled={toggling} onclick={toggleStatus}>
 			{toggling ? '…' : survey.status === 'open' ? 'Umfrage schließen' : 'Umfrage wieder öffnen'}
 		</button>
+		{#if confirmDelete}
+			<button type="button" class="action-btn danger" disabled={deleting} onclick={deleteSurvey}>
+				{deleting ? 'Wird gelöscht …' : 'Wirklich löschen'}
+			</button>
+			<button type="button" class="action-btn secondary" onclick={() => (confirmDelete = false)}>Abbrechen</button>
+		{:else}
+			<button type="button" class="action-btn secondary delete-trigger" onclick={() => (confirmDelete = true)}>Löschen</button>
+		{/if}
 	</nav>
 
 	{#if survey.status === 'open'}
@@ -324,6 +347,10 @@
 		background: var(--color-accent);
 		border-color: var(--color-accent);
 		color: var(--color-on-primary);
+	}
+	.delete-trigger {
+		color: var(--color-muted);
+		border-color: var(--color-border);
 	}
 	.freeze-section {
 		margin-top: var(--space-4);

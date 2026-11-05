@@ -4,7 +4,9 @@ import type { RequestHandler } from './$types';
 import { isAdminRequest } from '../../../../../lib/server/auth';
 import { getSurveyById } from '../../../../../lib/server/invitations';
 import { answerDb } from '../../../../../lib/server/answer-db';
-import { surveys } from '../../../../../../drizzle/answer-schema';
+import { identityDb } from '../../../../../lib/server/identity-db';
+import { responses, resultSnapshots, surveys, surveyPublicKeys, usedSignatures } from '../../../../../../drizzle/answer-schema';
+import { invitations, signingGrants, surveySigningKeys } from '../../../../../../drizzle/identity-schema';
 
 const VALID_STATUSES = ['open', 'closed'] as const;
 
@@ -30,4 +32,25 @@ export const PATCH: RequestHandler = async ({ request, params }) => {
 		.returning();
 	if (!updated) error(404, 'Survey not found');
 	return json(updated);
+};
+
+export const DELETE: RequestHandler = async ({ request, params }) => {
+	if (!isAdminRequest(request)) error(401, 'Unauthorized');
+	const surveyId = params.id;
+
+	await answerDb.delete(resultSnapshots).where(eq(resultSnapshots.surveyId, surveyId));
+	await answerDb.delete(usedSignatures).where(eq(usedSignatures.surveyId, surveyId));
+	await answerDb.delete(responses).where(eq(responses.surveyId, surveyId));
+	await answerDb.delete(surveyPublicKeys).where(eq(surveyPublicKeys.surveyId, surveyId));
+
+	await identityDb.delete(signingGrants).where(eq(signingGrants.surveyId, surveyId));
+	await identityDb.delete(invitations).where(eq(invitations.surveyId, surveyId));
+	await identityDb.delete(surveySigningKeys).where(eq(surveySigningKeys.surveyId, surveyId));
+
+	const [deleted] = await answerDb
+		.delete(surveys)
+		.where(eq(surveys.id, surveyId))
+		.returning();
+	if (!deleted) error(404, 'Survey not found');
+	return json({ deleted: true });
 };
