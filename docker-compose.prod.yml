@@ -9,7 +9,7 @@ services:
       IDENTITY_DB_URL: postgres://sotto:${IDENTITY_DB_PASSWORD:?Set IDENTITY_DB_PASSWORD}@sotto-identity-db:5432/sotto_identity
       ANSWER_DB_URL: postgres://sotto:${ANSWER_DB_PASSWORD:?Set ANSWER_DB_PASSWORD}@sotto-answer-db:5432/sotto_answer
       ADMIN_SECRET: ${ADMIN_SECRET:?Set ADMIN_SECRET}
-      ORIGIN: https://sotto.piecekeeper.art
+      ORIGIN: https://sotto.iriskohlweiss.com
     ports:
       - "127.0.0.1:3100:3000"
     depends_on:

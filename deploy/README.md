@@ -1,15 +1,15 @@
-# Deployment auf sotto.piecekeeper.art
+# Deployment auf sotto.iriskohlweiss.com
 
-Server: Hostinger VPS `46.225.126.167` (ssh hostinger-roots)
+Server: Hetzner Cloud `46.225.126.167` (ssh hetzner2), gemeinsam mit der Iris-Website
 
 ## Voraussetzungen
 
 - Docker + Docker Compose auf dem Server (vorhanden)
-- DNS A-Record für `sotto.piecekeeper.art` → `46.225.126.167`
+- DNS A-Record für `sotto.iriskohlweiss.com` → `46.225.126.167`
 
 ## 1. DNS einrichten
 
-Im Hostinger DNS-Panel für `piecekeeper.art`:
+Bei iwantmyname im DNS von `iriskohlweiss.com`:
 - A-Record: `sotto` → `46.225.126.167`
 
 ## 2. Repo auf den Server klonen
@@ -49,10 +49,10 @@ sudo systemctl reload nginx
 ## 6. Testen
 
 ```bash
-curl -I http://sotto.piecekeeper.art
+curl -I https://sotto.iriskohlweiss.com
 ```
 
-HTTPS wird von Hostingers Infrastruktur-Layer terminiert (kein Caddy/Certbot nötig).
+HTTPS per certbot: `sudo certbot --nginx -d sotto.iriskohlweiss.com --redirect` (verlängert sich automatisch).
 
 ## Updates deployen
 
