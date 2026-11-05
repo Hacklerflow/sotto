@@ -34,7 +34,9 @@
 		font-size: 12px;
 		font-weight: 700;
 		text-transform: uppercase;
-		padding: 2px 8px;
+		letter-spacing: 0.05em;
+		padding: 4px 10px;
+		border-radius: 4px;
 	}
 	.correlation {
 		font-size: 56px;

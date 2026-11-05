@@ -122,7 +122,7 @@
 	.explorer {
 		margin: var(--space-4) 0;
 		padding: var(--space-3) 0;
-		border-top: 2px solid #000;
+		border-top: 1px solid #e0e0e0;
 	}
 	h2 {
 		font-size: var(--font-size-h4);
@@ -152,8 +152,8 @@
 		padding: 10px 12px;
 		font-size: 15px;
 		font-family: inherit;
-		border: 2px solid #000;
-		border-radius: 4px;
+		border: 1px solid #e0e0e0;
+		border-radius: 8px;
 		background: #fff;
 		color: #000;
 		appearance: auto;

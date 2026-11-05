@@ -35,10 +35,13 @@
 <section>
 	<h2>Dimensionen</h2>
 	{#each dimensions as dimension, index (index)}
-		<fieldset>
-			<legend>Dimension {index + 1}</legend>
-			<label>
-				X-Achse
+		<div class="dimension-card">
+			<div class="dimension-header">
+				<span class="dimension-id">Dimension {index + 1}</span>
+				<button type="button" class="remove-btn" onclick={() => removeDimension(index)}>Entfernen</button>
+			</div>
+			<label class="field">
+				<span class="label-text">X-Achse</span>
 				<select bind:value={dimension.xAxis}>
 					<option value="">Frage wählen</option>
 					{#each questions as question (question.id)}
@@ -46,8 +49,8 @@
 					{/each}
 				</select>
 			</label>
-			<label>
-				Y-Achse
+			<label class="field">
+				<span class="label-text">Y-Achse</span>
 				<select bind:value={dimension.yAxis}>
 					<option value="">Frage wählen</option>
 					{#each questions as question (question.id)}
@@ -55,8 +58,8 @@
 					{/each}
 				</select>
 			</label>
-			<label>
-				Größen-Achse (optional)
+			<label class="field">
+				<span class="label-text">Größen-Achse (optional)</span>
 				<select
 					value={dimension.sizeAxis ?? ''}
 					onchange={(event) => {
@@ -71,8 +74,8 @@
 					{/each}
 				</select>
 			</label>
-			<label>
-				Chart-Typ
+			<label class="field">
+				<span class="label-text">Chart-Typ</span>
 				<select bind:value={dimension.chartType}>
 					{#each CHART_TYPES as chartType (chartType)}
 						<option value={chartType}>{chartLabels[chartType]}</option>
@@ -80,26 +83,103 @@
 				</select>
 			</label>
 			<p class="preview">{preview(dimension)}</p>
-			<button type="button" onclick={() => removeDimension(index)}>Dimension entfernen</button>
-		</fieldset>
+		</div>
 	{/each}
-	<button type="button" onclick={addDimension} disabled={questions.length === 0}>
+	<button type="button" class="add-btn" onclick={addDimension} disabled={questions.length === 0}>
 		Dimension hinzufügen
 	</button>
 </section>
 
 <style>
-	fieldset {
-		display: grid;
-		gap: var(--space-1);
+	h2 {
+		font-size: var(--font-size-h4);
+		margin: 0 0 var(--space-2);
+	}
+	.dimension-card {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		padding: var(--space-3);
+		border: 1px solid #e0e0e0;
+		border-radius: 12px;
 		margin-bottom: var(--space-2);
 	}
-	label {
-		display: grid;
-		gap: 0.25rem;
+	.dimension-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.dimension-id {
+		font-size: var(--font-size-small);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-muted);
+	}
+	.remove-btn {
+		font-size: var(--font-size-small);
+		font-weight: 600;
+		background: none;
+		border: none;
+		color: var(--color-muted);
+		cursor: pointer;
+		padding: 4px 8px;
+		border-radius: 4px;
+		transition: color 0.15s;
+	}
+	.remove-btn:hover {
+		color: var(--color-accent);
+	}
+	.field {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+	.label-text {
+		font-size: var(--font-size-small);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-muted);
+	}
+	select {
+		min-height: 40px;
+		font-size: var(--font-size-body);
+		font-family: inherit;
+		padding: 8px 12px;
+		border: 1px solid #e0e0e0;
+		border-radius: 8px;
+		background: var(--color-bg);
+		color: var(--color-primary);
+		transition: border-color 0.15s;
+	}
+	select:focus {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 1px;
 	}
 	.preview {
 		margin: 0;
 		font-size: var(--font-size-small);
+		color: var(--color-muted);
+		font-style: italic;
+	}
+	.add-btn {
+		min-height: 40px;
+		padding: 0 16px;
+		font-size: var(--font-size-body);
+		font-weight: 700;
+		border: 1px solid #e0e0e0;
+		border-radius: 8px;
+		background: transparent;
+		color: var(--color-primary);
+		cursor: pointer;
+		transition: border-color 0.15s;
+	}
+	.add-btn:hover {
+		border-color: var(--color-primary);
+	}
+	.add-btn:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
 	}
 </style>
