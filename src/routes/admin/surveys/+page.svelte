@@ -108,12 +108,12 @@
 		white-space: nowrap;
 	}
 	.status-badge.open {
-		background: #e8f5e9;
-		color: #2e7d32;
+		background: var(--color-success-bg);
+		color: var(--color-success);
 	}
 	.status-badge.closed {
-		background: #f3e5f5;
-		color: #7b1fa2;
+		background: var(--color-info-bg);
+		color: var(--color-info);
 	}
 	.survey-meta {
 		display: flex;

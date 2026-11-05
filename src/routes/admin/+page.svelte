@@ -3,14 +3,23 @@
 	import type { Survey } from '../../lib/types/survey';
 
 	let surveys = $state<Survey[]>([]);
-	let loaded = $state(false);
+	let loading = $state(true);
+	let error = $state(false);
 
 	$effect(() => {
 		adminFetch('/api/admin/surveys')
-			.then((response) => (response.ok ? response.json() : []))
+			.then((response) => {
+				if (!response.ok) throw new Error();
+				return response.json();
+			})
 			.then((data: Survey[]) => {
 				surveys = data;
-				loaded = true;
+			})
+			.catch(() => {
+				error = true;
+			})
+			.finally(() => {
+				loading = false;
 			});
 	});
 
@@ -20,7 +29,11 @@
 
 <h1>Dashboard</h1>
 
-{#if loaded}
+{#if loading}
+	<p class="loading">Laden …</p>
+{:else if error}
+	<p class="error">Daten konnten nicht geladen werden.</p>
+{:else}
 	<div class="stats">
 		<div class="stat-card">
 			<span class="stat-value">{surveys.length}</span>
@@ -109,6 +122,13 @@
 	.action-icon {
 		font-size: 24px;
 		font-weight: 300;
+	}
+	.loading {
+		color: var(--color-muted);
+	}
+	.error {
+		color: var(--color-accent);
+		font-weight: 600;
 	}
 	@media (max-width: 600px) {
 		.stats {

@@ -1,53 +1,117 @@
-<svelte:head><title>Wie Sotto dich anonym hält</title></svelte:head>
+<svelte:head><title>So funktioniert die Anonymität — Sotto</title></svelte:head>
 
 <main>
 	<a href="/" class="back">&larr; Startseite</a>
 
-	<h1>Deine Antworten bleiben anonym.</h1>
+	<h1>Nicht Vertrauen. Mathematik.</h1>
 	<p class="lead">
-		Deine Antworten werden auf deinem Gerät anonymisiert, bevor sie unseren Server erreichen.
-		Niemand, auch wir nicht, kann sie später mit dir verbinden.
+		Sotto trennt deine Identität von deiner Antwort — nicht durch Versprechen,
+		sondern durch Kryptografie. Das Verfahren heißt Blind RSA Signature und ist ein
+		offener Standard (RFC 9474). Der gesamte Code ist Open Source.
 	</p>
 
-	<ol class="steps">
-		<li>
-			<div class="step-number">1</div>
-			<div class="step-content">
-				<h2>Du bekommst eine Einladung</h2>
-				<p>Wir wissen, dass du teilnehmen darfst, und markieren die Einladung als eingelöst.</p>
+	<section class="protocol">
+		<h2>So funktioniert das Protokoll</h2>
+		<div class="flow">
+			<div class="flow-col">
+				<span class="flow-label">Dein Gerät</span>
 			</div>
-		</li>
-		<li>
-			<div class="step-number">2</div>
-			<div class="step-content">
-				<h2>Dein Gerät verdeckt eine Marke</h2>
-				<p>Dein Browser erzeugt eine zufällige Marke und verdeckt sie, bevor er sie sendet.</p>
+			<div class="flow-col">
+				<span class="flow-label">Server</span>
 			</div>
-		</li>
-		<li>
-			<div class="step-number">3</div>
-			<div class="step-content">
-				<h2>Der Server signiert blind</h2>
-				<p>Wir bestätigen die verdeckte Marke, ohne ihren Inhalt zu sehen.</p>
-			</div>
-		</li>
-		<li>
-			<div class="step-number">4</div>
-			<div class="step-content">
-				<h2>Du sendest anonym ab</h2>
-				<p>
-					Dein Gerät entfernt die Verdeckung. Die Marke beweist, dass du berechtigt bist, aber nicht,
-					wer du bist.
-				</p>
-			</div>
-		</li>
-	</ol>
 
-	<section class="separation">
-		<h2>Zwei getrennte Welten</h2>
+			<div class="flow-step step-left">
+				<div class="flow-number">1</div>
+				<div class="flow-card">
+					<strong>Einladung einlösen</strong>
+					<p>Du klickst auf deinen Einladungslink. Der Server prüft, ob du berechtigt bist, und markiert die Einladung als eingelöst.</p>
+				</div>
+			</div>
+
+			<div class="flow-step step-left">
+				<div class="flow-number">2</div>
+				<div class="flow-card">
+					<strong>Marke verdecken</strong>
+					<p>Dein Browser erzeugt eine zufällige Marke und verdeckt sie kryptografisch. Der Server sieht nur die verdeckte Version.</p>
+				</div>
+			</div>
+
+			<div class="flow-arrow">&rarr;</div>
+
+			<div class="flow-step step-right">
+				<div class="flow-number">3</div>
+				<div class="flow-card">
+					<strong>Blind signieren</strong>
+					<p>Der Server signiert die verdeckte Marke, ohne ihren Inhalt zu kennen. Er weiß: diese Person darf antworten. Aber nicht, welche Marke er gerade signiert hat.</p>
+				</div>
+			</div>
+
+			<div class="flow-arrow">&larr;</div>
+
+			<div class="flow-step step-left">
+				<div class="flow-number">4</div>
+				<div class="flow-card">
+					<strong>Verdeckung entfernen</strong>
+					<p>Dein Gerät entfernt die kryptografische Verdeckung. Die Signatur ist gültig — aber der Server kann sie keiner Signieranfrage zuordnen.</p>
+				</div>
+			</div>
+
+			<div class="flow-step step-left">
+				<div class="flow-number">5</div>
+				<div class="flow-card">
+					<strong>Anonym absenden</strong>
+					<p>Deine Antwort wird zusammen mit der entblindeten Signatur eingereicht. Der Server prüft die Signatur und speichert die Antwort — ohne zu wissen, von wem sie stammt.</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="guarantees">
+		<h2>Drei Garantien</h2>
+		<div class="guarantee-grid">
+			<div class="guarantee-card">
+				<div class="guarantee-icon">
+					<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M16 3L4 8v7c0 7.73 5.12 14.97 12 17 6.88-2.03 12-9.27 12-17V8L16 3z" stroke="currentColor" stroke-width="2" fill="none"/>
+						<path d="M11 16l3.5 3.5L21 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+				</div>
+				<h3>Mathematische Anonymität</h3>
+				<p>Blinde Signaturen machen es mathematisch unmöglich, eine Antwort einer Person zuzuordnen — selbst für den Betreiber.</p>
+			</div>
+			<div class="guarantee-card">
+				<div class="guarantee-icon">
+					<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<rect x="3" y="6" width="11" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
+						<rect x="18" y="6" width="11" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
+						<line x1="14" y1="16" x2="18" y2="16" stroke="currentColor" stroke-width="2" stroke-dasharray="2 2"/>
+					</svg>
+				</div>
+				<h3>Getrennte Datenbanken</h3>
+				<p>Identitäten und Antworten liegen in zwei physisch getrennten Datenbanken. Es gibt keine Verbindung zwischen ihnen — selbst ein Leak verbindet nichts.</p>
+			</div>
+			<div class="guarantee-card">
+				<div class="guarantee-icon">
+					<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<circle cx="10" cy="16" r="3" stroke="currentColor" stroke-width="2"/>
+						<circle cx="22" cy="16" r="3" stroke="currentColor" stroke-width="2"/>
+						<circle cx="16" cy="8" r="3" stroke="currentColor" stroke-width="2"/>
+						<circle cx="16" cy="24" r="3" stroke="currentColor" stroke-width="2"/>
+						<line x1="13" y1="16" x2="19" y2="16" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
+					</svg>
+				</div>
+				<h3>k-Anonymität</h3>
+				<p>Ergebnisse erscheinen erst, wenn genug Personen geantwortet haben. Einzelne Stimmen lassen sich nie herauslesen.</p>
+			</div>
+		</div>
+	</section>
+
+	<section class="open-source">
+		<h2>Überprüfbar, nicht vertrauenspflichtig</h2>
 		<p>
-			Einladungen und Antworten liegen in zwei physisch getrennten Datenbanken.
-			Ergebnisse erscheinen erst, wenn genug Personen geantwortet haben.
+			Sotto ist Open Source unter der AGPL-3.0-Lizenz. Der gesamte Quellcode ist einsehbar.
+			Du musst uns nicht vertrauen — du kannst den Code prüfen, selbst hosten und die
+			kryptografischen Operationen auf deinem Gerät in den Browser-DevTools nachvollziehen.
 		</p>
 	</section>
 
@@ -75,6 +139,10 @@
 		margin: 0 0 var(--space-2);
 	}
 	h2 {
+		font-size: var(--font-size-h4);
+		margin: 0 0 var(--space-3);
+	}
+	h3 {
 		font-size: var(--font-size-h5);
 		margin: 0 0 var(--space-1);
 	}
@@ -84,50 +152,137 @@
 		line-height: 1.6;
 		margin: 0 0 var(--space-4);
 	}
-	.steps {
-		list-style: none;
-		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-3);
-		margin: 0 0 var(--space-4);
+
+	.protocol {
+		margin-bottom: var(--space-4);
 	}
-	.steps li {
-		display: flex;
-		gap: var(--space-3);
+	.flow {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--space-2);
+		position: relative;
 	}
-	.step-number {
+	.flow-col {
+		min-height: 0;
+	}
+	.flow-label {
+		display: block;
+		font-size: var(--font-size-small);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-muted);
+		padding-bottom: var(--space-1);
+		border-bottom: 2px solid var(--color-border);
+		margin-bottom: var(--space-1);
+	}
+	.flow-step {
+		display: flex;
+		gap: 12px;
+		align-items: flex-start;
+	}
+	.step-left {
+		grid-column: 1;
+	}
+	.step-right {
+		grid-column: 2;
+	}
+	.flow-arrow {
+		grid-column: 1 / -1;
+		text-align: center;
+		font-size: 1.5rem;
+		color: var(--color-muted);
+		padding: 4px 0;
+	}
+	.flow-number {
 		flex-shrink: 0;
-		width: 40px;
-		height: 40px;
+		width: 28px;
+		height: 28px;
 		border-radius: 50%;
 		background: var(--color-primary);
 		color: var(--color-bg);
 		font-weight: 900;
-		font-size: 1.1rem;
+		font-size: 0.85rem;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
-	.step-content p {
+	.flow-card {
+		flex: 1;
+	}
+	.flow-card strong {
+		display: block;
+		margin-bottom: 4px;
+	}
+	.flow-card p {
+		color: var(--color-muted);
+		line-height: 1.6;
+		margin: 0;
+		font-size: var(--font-size-small);
+	}
+
+	.guarantees {
+		margin-bottom: var(--space-4);
+	}
+	.guarantee-grid {
+		display: grid;
+		gap: var(--space-2);
+	}
+	.guarantee-card {
+		padding: var(--space-3);
+		border: 1px solid var(--color-border);
+		border-radius: 12px;
+	}
+	.guarantee-icon {
+		margin-bottom: var(--space-2);
+		color: var(--color-primary);
+	}
+	.guarantee-card p {
 		color: var(--color-muted);
 		line-height: 1.6;
 		margin: 0;
 	}
-	.separation {
+
+	.open-source {
 		padding: var(--space-3);
 		border: 1px solid var(--color-border);
 		border-radius: 12px;
 		margin-bottom: var(--space-3);
 	}
-	.separation p {
+	.open-source h2 {
+		margin-bottom: var(--space-1);
+	}
+	.open-source p {
 		color: var(--color-muted);
 		line-height: 1.6;
 		margin: 0;
 	}
+
 	.expert-link {
 		display: inline-block;
 		font-weight: 700;
 		font-size: var(--font-size-h5);
+		margin-bottom: var(--space-4);
+	}
+
+	@media (min-width: 600px) {
+		.guarantee-grid {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+
+	@media (max-width: 599px) {
+		.flow {
+			grid-template-columns: 1fr;
+		}
+		.step-right {
+			grid-column: 1;
+		}
+		.flow-col:last-child {
+			display: none;
+		}
+		.flow-arrow {
+			grid-column: 1;
+		}
 	}
 </style>

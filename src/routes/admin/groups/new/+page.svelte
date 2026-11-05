@@ -165,7 +165,7 @@
 	.add-btn {
 		justify-self: start;
 		background: none;
-		border: 1px dashed #c0c0c0;
+		border: 1px dashed var(--color-border);
 		border-radius: 8px;
 		padding: 8px 16px;
 		cursor: pointer;

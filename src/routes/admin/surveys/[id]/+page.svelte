@@ -14,6 +14,8 @@
 
 	let survey = $state<SurveyData | null>(null);
 	let progress = $state<{ invited: number; responded: number } | null>(null);
+	let loading = $state(true);
+	let loadError = $state(false);
 	let freezing = $state(false);
 	let freezeError = $state('');
 	let freezeSuccess = $state(false);
@@ -21,9 +23,18 @@
 
 	$effect(() => {
 		adminFetch(`/api/admin/surveys/${surveyId}`)
-			.then((response) => (response.ok ? response.json() : null))
+			.then((response) => {
+				if (!response.ok) throw new Error();
+				return response.json();
+			})
 			.then((data) => {
-				if (data) survey = data;
+				survey = data;
+			})
+			.catch(() => {
+				loadError = true;
+			})
+			.finally(() => {
+				loading = false;
 			});
 		adminFetch(`/api/admin/surveys/${surveyId}/progress`)
 			.then((response) => (response.ok ? response.json() : null))
@@ -87,13 +98,18 @@
 <main>
 	<a href="/admin/surveys" class="back">&larr; Alle Umfragen</a>
 
-	<h1>{survey?.title ?? 'Umfrage …'}</h1>
+	{#if loading}
+		<p class="loading">Laden …</p>
+	{:else if loadError || !survey}
+		<h1>Umfrage nicht gefunden</h1>
+		<p class="load-error">Die Umfrage konnte nicht geladen werden.</p>
+	{:else}
 
-	{#if survey}
-		<span class="status-badge" class:open={survey.status === 'open'} class:closed={survey.status === 'closed'}>
-			{survey.status === 'open' ? 'Offen' : 'Abgeschlossen'}
-		</span>
-	{/if}
+	<h1>{survey.title}</h1>
+
+	<span class="status-badge" class:open={survey.status === 'open'} class:closed={survey.status === 'closed'}>
+		{survey.status === 'open' ? 'Offen' : 'Abgeschlossen'}
+	</span>
 
 	{#if progress}
 		<section class="progress-section">
@@ -117,7 +133,7 @@
 		</button>
 	</nav>
 
-	{#if survey?.status === 'open'}
+	{#if survey.status === 'open'}
 		<section class="freeze-section">
 			<h2>Umfrage abschließen</h2>
 			<p>Anonymisiert die Antworten und erstellt den Ergebnis-Snapshot. Danach können keine weiteren Antworten abgegeben werden.</p>
@@ -132,7 +148,7 @@
 		</section>
 	{/if}
 
-	{#if survey?.config}
+	{#if survey.config}
 		{@const config = survey.config}
 		<section class="config-section">
 			<h2>Fragen ({config.questions.length})</h2>
@@ -178,6 +194,7 @@
 			{/if}
 		</section>
 	{/if}
+	{/if}
 </main>
 
 <style>
@@ -194,6 +211,12 @@
 	}
 	.back:hover {
 		color: var(--color-primary);
+	}
+	.loading {
+		color: var(--color-muted);
+	}
+	.load-error {
+		color: var(--color-accent);
 	}
 	h1 {
 		font-size: var(--font-size-h3);
@@ -214,12 +237,12 @@
 		letter-spacing: 0.05em;
 	}
 	.status-badge.open {
-		background: #e8f5e9;
-		color: #2e7d32;
+		background: var(--color-success-bg);
+		color: var(--color-success);
 	}
 	.status-badge.closed {
-		background: #f3e5f5;
-		color: #7b1fa2;
+		background: var(--color-info-bg);
+		color: var(--color-info);
 	}
 	.progress-section {
 		margin-top: var(--space-3);
@@ -240,7 +263,7 @@
 	.progress-bar {
 		width: 100%;
 		height: 8px;
-		background: #f0f0f0;
+		background: var(--color-surface);
 		border-radius: 4px;
 		overflow: hidden;
 	}
@@ -362,7 +385,7 @@
 	.option-tag {
 		font-size: 13px;
 		padding: 2px 10px;
-		border: 1px solid #ddd;
+		border: 1px solid var(--color-border);
 		border-radius: 100px;
 		color: var(--color-muted);
 	}
@@ -391,7 +414,7 @@
 		letter-spacing: 0.05em;
 		padding: 2px 8px;
 		border-radius: 4px;
-		background: #f0f0f0;
+		background: var(--color-surface);
 		white-space: nowrap;
 	}
 	.dimension-axes {
