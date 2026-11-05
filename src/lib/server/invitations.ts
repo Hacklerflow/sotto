@@ -54,14 +54,26 @@ export async function createInvitations(surveyId: string, emails: string[]): Pro
 
 export type InvitationStatus = 'valid' | 'redeemed' | 'unknown';
 
-// Read-only check; never consumes the token.
-export async function getInvitationStatus(token: string): Promise<InvitationStatus> {
+export interface InvitationInfo {
+	status: InvitationStatus;
+	surveyId: string | null;
+	surveyTitle: string | null;
+}
+
+export async function getInvitationInfo(token: string): Promise<InvitationInfo> {
 	const [existing] = await identityDb
-		.select({ redeemed: invitations.redeemed })
+		.select({ redeemed: invitations.redeemed, surveyId: invitations.surveyId })
 		.from(invitations)
 		.where(eq(invitations.token, token));
-	if (!existing) return 'unknown';
-	return existing.redeemed ? 'redeemed' : 'valid';
+	if (!existing) return { status: 'unknown', surveyId: null, surveyTitle: null };
+	const status: InvitationStatus = existing.redeemed ? 'redeemed' : 'valid';
+	const survey = await getSurveyById(existing.surveyId);
+	return { status, surveyId: existing.surveyId, surveyTitle: survey?.title ?? null };
+}
+
+export async function getInvitationStatus(token: string): Promise<InvitationStatus> {
+	const info = await getInvitationInfo(token);
+	return info.status;
 }
 
 export async function redeemInvitation(

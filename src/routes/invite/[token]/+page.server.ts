@@ -1,11 +1,11 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createSession } from '../../../lib/server/auth';
-import { getInvitationStatus, redeemInvitation } from '../../../lib/server/invitations';
+import { getInvitationInfo, redeemInvitation } from '../../../lib/server/invitations';
 
-const MESSAGE_ALREADY_REDEEMED = 'Invitation already redeemed';
-const MESSAGE_INVALID = 'Invalid or expired invitation token';
-const MESSAGE_GENERIC = 'Something went wrong';
+const MESSAGE_ALREADY_REDEEMED = 'Diese Einladung wurde bereits verwendet.';
+const MESSAGE_INVALID = 'Ungültiger oder abgelaufener Einladungslink.';
+const MESSAGE_GENERIC = 'Etwas ist schiefgelaufen.';
 
 function toUserMessage(cause: unknown): string {
 	if (cause instanceof Error) {
@@ -17,12 +17,14 @@ function toUserMessage(cause: unknown): string {
 
 export const load: PageServerLoad = async ({ params }) => {
 	try {
-		const status = await getInvitationStatus(params.token);
-		if (status === 'redeemed') return { valid: false, error: MESSAGE_ALREADY_REDEEMED };
-		if (status === 'unknown') return { valid: false, error: MESSAGE_INVALID };
-		return { valid: true, error: null };
+		const info = await getInvitationInfo(params.token);
+		if (info.status === 'redeemed')
+			return { valid: false, error: MESSAGE_ALREADY_REDEEMED, surveyTitle: info.surveyTitle };
+		if (info.status === 'unknown')
+			return { valid: false, error: MESSAGE_INVALID, surveyTitle: null };
+		return { valid: true, error: null, surveyTitle: info.surveyTitle };
 	} catch {
-		return { valid: false, error: MESSAGE_GENERIC };
+		return { valid: false, error: MESSAGE_GENERIC, surveyTitle: null };
 	}
 };
 
