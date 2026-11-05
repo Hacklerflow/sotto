@@ -76,56 +76,89 @@
 {:else if !group}
 	<p>Gruppe nicht gefunden.</p>
 {:else}
-	<h1>{group.name}</h1>
+	<main>
+		<a href="/admin/groups" class="back">&larr; Alle Gruppen</a>
+		<h1>{group.name}</h1>
 
-	<section>
-		<h2>Mitglieder ({group.members.length})</h2>
-		{#if group.members.length === 0}
-			<p>Noch keine Mitglieder.</p>
-		{:else}
-			<ul class="member-list">
-				{#each group.members as member (member.id)}
-					<li>
-						<span class="member-info">
-							<strong>{member.name || '(kein Name)'}</strong>
-							<span class="email">{member.email}</span>
-						</span>
-						<button
-							type="button"
-							onclick={() => removeMember(member.id)}
-							class="remove-button"
-						>
-							Entfernen
-						</button>
-					</li>
-				{/each}
-			</ul>
-		{/if}
-
-		<div class="add-member-form">
-			<input type="text" bind:value={newMemberName} placeholder="Name" />
-			<input type="email" bind:value={newMemberEmail} placeholder="E-Mail" />
-			<button type="button" onclick={addMember} disabled={addingMember}>Hinzufügen</button>
-		</div>
-	</section>
-	{#if group.surveys.length > 0}
 		<section>
-			<h2>Umfragen ({group.surveys.length})</h2>
-			<ul class="survey-list">
-				{#each group.surveys as survey (survey.id)}
-					<li>
-						<a href="/admin/surveys/{survey.id}">{survey.title}</a>
-						<span class="status">{survey.status}</span>
-					</li>
-				{/each}
-			</ul>
+			<h2>Mitglieder ({group.members.length})</h2>
+			{#if group.members.length === 0}
+				<p class="empty">Noch keine Mitglieder.</p>
+			{:else}
+				<ul class="member-list">
+					{#each group.members as member (member.id)}
+						<li>
+							<span class="member-info">
+								<span class="member-name">{member.name || '(kein Name)'}</span>
+								<span class="member-email">{member.email}</span>
+							</span>
+							<button
+								type="button"
+								onclick={() => removeMember(member.id)}
+								class="remove-btn"
+							>
+								Entfernen
+							</button>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+
+			<div class="add-member">
+				<input type="text" bind:value={newMemberName} placeholder="Name" />
+				<input type="email" bind:value={newMemberEmail} placeholder="E-Mail" />
+				<button type="button" onclick={addMember} disabled={addingMember} class="add-btn">
+					Hinzufügen
+				</button>
+			</div>
 		</section>
-	{/if}
+
+		{#if group.surveys.length > 0}
+			<section>
+				<h2>Umfragen ({group.surveys.length})</h2>
+				<ul class="survey-list">
+					{#each group.surveys as survey (survey.id)}
+						<li>
+							<a href="/admin/surveys/{survey.id}" class="survey-link">
+								<span class="survey-title">{survey.title}</span>
+								<span class="status-badge" class:open={survey.status === 'open'} class:closed={survey.status === 'closed'}>
+									{survey.status === 'open' ? 'Offen' : 'Abgeschlossen'}
+								</span>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
+	</main>
 {/if}
 
 <style>
+	main {
+		max-width: 64rem;
+	}
+	.back {
+		font-size: var(--font-size-small);
+		color: var(--color-muted);
+		display: inline-block;
+		margin-bottom: var(--space-2);
+	}
+	.back:hover {
+		color: var(--color-primary);
+	}
+	h1 {
+		font-size: var(--font-size-h3);
+		margin-bottom: var(--space-1);
+	}
+	h2 {
+		font-size: var(--font-size-h5);
+		margin-bottom: var(--space-2);
+	}
 	section {
-		margin-top: var(--space-3);
+		margin-top: var(--space-4);
+	}
+	.empty {
+		color: var(--color-muted);
 	}
 	.member-list {
 		list-style: none;
@@ -139,32 +172,59 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: var(--space-2) var(--space-3);
-		border: 1px solid var(--color-primary);
+		border: 1px solid #e0e0e0;
 		border-radius: 8px;
 	}
 	.member-info {
 		display: flex;
 		flex-direction: column;
 	}
-	.email {
-		font-size: var(--font-size-small);
-		opacity: 0.7;
+	.member-name {
+		font-weight: 600;
 	}
-	.remove-button {
+	.member-email {
+		font-size: var(--font-size-small);
+		color: var(--color-muted);
+	}
+	.remove-btn {
 		background: none;
-		border: 1px solid currentColor;
+		border: 1px solid #e0e0e0;
 		border-radius: 6px;
-		padding: 0.25rem 0.75rem;
+		padding: 4px 12px;
 		cursor: pointer;
 		font-size: var(--font-size-small);
+		color: var(--color-muted);
+		transition: border-color 0.15s, color 0.15s;
 	}
-	.add-member-form {
+	.remove-btn:hover {
+		border-color: var(--color-accent);
+		color: var(--color-accent);
+	}
+	.add-member {
 		display: flex;
 		gap: var(--space-2);
 		margin-top: var(--space-2);
 	}
-	.add-member-form input {
+	.add-member input {
 		flex: 1;
+		padding: 8px 12px;
+		border: 1px solid #e0e0e0;
+		border-radius: 8px;
+		font-size: inherit;
+		font-family: inherit;
+	}
+	.add-btn {
+		padding: 8px 16px;
+		background: var(--color-primary);
+		color: var(--color-bg);
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	.add-btn:disabled {
+		opacity: 0.5;
 	}
 	.survey-list {
 		list-style: none;
@@ -174,20 +234,43 @@
 		gap: var(--space-1);
 	}
 	.survey-list li {
+		border: 1px solid #e0e0e0;
+		border-radius: 8px;
+		transition: border-color 0.15s;
+	}
+	.survey-list li:hover {
+		border-color: var(--color-primary);
+	}
+	.survey-link {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		padding: var(--space-2) var(--space-3);
-		border: 1px solid var(--color-primary);
-		border-radius: 8px;
+		text-decoration: none;
 	}
-	.survey-list a {
+	.survey-title {
 		font-weight: 600;
 	}
-	.status {
-		font-size: var(--font-size-small);
+	.status-badge {
+		display: inline-block;
+		padding: 2px 10px;
+		border-radius: 100px;
+		font-size: 12px;
+		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		opacity: 0.6;
+	}
+	.status-badge.open {
+		background: #e8f5e9;
+		color: #2e7d32;
+	}
+	.status-badge.closed {
+		background: #f3e5f5;
+		color: #7b1fa2;
+	}
+	@media (max-width: 600px) {
+		.add-member {
+			flex-direction: column;
+		}
 	}
 </style>

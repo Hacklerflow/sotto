@@ -19,6 +19,7 @@
 	let progress = $state<{ invited: number; responded: number } | null>(null);
 	let sending = $state(false);
 	let lastCreated = $state<Invitation[]>([]);
+	let copied = $state(false);
 
 	async function loadProgress() {
 		const response = await adminFetch(`/api/admin/surveys/${surveyId}/progress`);
@@ -58,64 +59,104 @@
 			sending = false;
 		}
 	}
+
+	function invitationUrl(token: string): string {
+		return `${window.location.origin}/invite/${token}`;
+	}
+
+	async function copyAllLinks() {
+		const text = lastCreated
+			.map((invitation) => `${invitation.email}: ${invitationUrl(invitation.token)}`)
+			.join('\n');
+		await navigator.clipboard.writeText(text);
+		copied = true;
+		setTimeout(() => (copied = false), 2000);
+	}
 </script>
 
-<h1>Einladungen</h1>
-{#if progress}
-	<p>{progress.invited} eingeladen, {progress.responded} Antworten eingegangen.</p>
-{/if}
+<main>
+	<a href="/admin/surveys/{surveyId}" class="back">&larr; Zur Umfrage</a>
 
-<form onsubmit={send}>
-	<label>
-		Gruppe auswählen
-		<select bind:value={selectedGroupId}>
-			<option value="">— Gruppe wählen —</option>
-			{#each groups as group (group.id)}
-				<option value={group.id}>{group.name}</option>
-			{/each}
-		</select>
-	</label>
-	{#if groups.length === 0}
-		<p>
-			Noch keine Gruppen vorhanden.
-			<a href="/admin/groups/new">Gruppe erstellen</a>
-		</p>
+	<h1>Einladungen</h1>
+
+	{#if progress}
+		<div class="progress-info">
+			<span class="progress-count">{progress.invited} eingeladen</span>
+			<span class="progress-divider">&middot;</span>
+			<span class="progress-count">{progress.responded} Antworten</span>
+		</div>
 	{/if}
-	<button type="submit" disabled={sending || !selectedGroupId}>Einladungen senden</button>
-</form>
-{#if message}<p role="status">{message}</p>{/if}
 
-{#if lastCreated.length > 0}
-	<ul class="invitation-list">
-		{#each lastCreated as invitation}
-			<li>
-				<strong>{invitation.email}</strong>
-				<code>{window.location.origin}/invite/{invitation.token}</code>
-			</li>
-		{/each}
-	</ul>
-{/if}
+	<form onsubmit={send}>
+		<label>
+			<span class="label-text">Gruppe auswählen</span>
+			<select bind:value={selectedGroupId}>
+				<option value="">— Gruppe wählen —</option>
+				{#each groups as group (group.id)}
+					<option value={group.id}>{group.name}</option>
+				{/each}
+			</select>
+		</label>
+		{#if groups.length === 0}
+			<p class="hint">
+				Noch keine Gruppen vorhanden.
+				<a href="/admin/groups/new">Gruppe erstellen</a>
+			</p>
+		{/if}
+		<button type="submit" class="send-btn" disabled={sending || !selectedGroupId}>
+			{sending ? 'Wird gesendet …' : 'Einladungen erstellen'}
+		</button>
+	</form>
+
+	{#if message}<p class="message" role="status">{message}</p>{/if}
+
+	{#if lastCreated.length > 0}
+		<section class="results">
+			<div class="results-header">
+				<h2>Erstellte Einladungen</h2>
+				<button type="button" class="copy-btn" onclick={copyAllLinks}>
+					{copied ? 'Kopiert!' : 'Alle Links kopieren'}
+				</button>
+			</div>
+			<ul class="invitation-list">
+				{#each lastCreated as invitation}
+					<li>
+						<span class="inv-email">{invitation.email}</span>
+						<code class="inv-link">{invitationUrl(invitation.token)}</code>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/if}
+</main>
 
 <style>
-	.invitation-list {
-		list-style: none;
-		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-2);
-		margin-top: var(--space-2);
+	main {
+		max-width: 64rem;
 	}
-	.invitation-list li {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-		padding: var(--space-2) var(--space-3);
-		border: 1px solid var(--color-primary);
-		border-radius: 8px;
-	}
-	.invitation-list code {
+	.back {
 		font-size: var(--font-size-small);
-		word-break: break-all;
+		color: var(--color-muted);
+		display: inline-block;
+		margin-bottom: var(--space-2);
+	}
+	.back:hover {
+		color: var(--color-primary);
+	}
+	h1 {
+		font-size: var(--font-size-h3);
+		margin-bottom: var(--space-1);
+	}
+	h2 {
+		font-size: var(--font-size-h5);
+		margin: 0;
+	}
+	.progress-info {
+		display: flex;
+		gap: 8px;
+		font-size: var(--font-size-small);
+		color: var(--color-muted);
+		margin-bottom: var(--space-3);
 	}
 	form {
 		display: grid;
@@ -123,12 +164,91 @@
 	}
 	label {
 		display: grid;
-		gap: 0.25rem;
+		gap: 4px;
+	}
+	.label-text {
+		font-size: var(--font-size-small);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-muted);
 	}
 	select {
-		padding: var(--space-1) var(--space-2);
-		border: 2px solid var(--color-primary);
+		padding: 10px 12px;
+		border: 1px solid #e0e0e0;
 		border-radius: 8px;
 		font-size: inherit;
+		font-family: inherit;
+	}
+	select:focus {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 1px;
+	}
+	.hint {
+		font-size: var(--font-size-small);
+		color: var(--color-muted);
+	}
+	.send-btn {
+		justify-self: start;
+		padding: 10px 24px;
+		background: var(--color-primary);
+		color: var(--color-bg);
+		border: none;
+		border-radius: 8px;
+		font-weight: 700;
+		cursor: pointer;
+	}
+	.send-btn:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+	.message {
+		font-weight: 600;
+		margin-top: var(--space-2);
+	}
+	.results {
+		margin-top: var(--space-4);
+	}
+	.results-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: var(--space-2);
+	}
+	.copy-btn {
+		padding: 6px 16px;
+		border: 1px solid #e0e0e0;
+		border-radius: 6px;
+		background: transparent;
+		font-size: var(--font-size-small);
+		font-weight: 600;
+		cursor: pointer;
+		transition: border-color 0.15s;
+	}
+	.copy-btn:hover {
+		border-color: var(--color-primary);
+	}
+	.invitation-list {
+		list-style: none;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+	}
+	.invitation-list li {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		padding: var(--space-2) var(--space-3);
+		border: 1px solid #e0e0e0;
+		border-radius: 8px;
+	}
+	.inv-email {
+		font-weight: 600;
+	}
+	.inv-link {
+		font-size: var(--font-size-small);
+		color: var(--color-muted);
+		word-break: break-all;
 	}
 </style>

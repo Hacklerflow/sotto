@@ -5,6 +5,7 @@
 		id: string;
 		name: string;
 		createdAt: string;
+		memberCount?: number;
 	}
 
 	let groups = $state<Group[]>([]);
@@ -22,30 +23,40 @@
 
 <h1>Gruppen</h1>
 
-<a href="/admin/groups/new" class="create-link">Neue Gruppe erstellen</a>
-
 {#if loading}
 	<p>Laden …</p>
 {:else if groups.length === 0}
-	<p>Noch keine Gruppen angelegt.</p>
+	<p>Noch keine Gruppen angelegt. <a href="/admin/groups/new">Jetzt eine erstellen</a></p>
 {:else}
+	<a href="/admin/groups/new" class="create-btn">+ Neue Gruppe</a>
 	<ul class="group-list">
 		{#each groups as group (group.id)}
 			<li>
-				<a href="/admin/groups/{group.id}">{group.name}</a>
+				<a href="/admin/groups/{group.id}" class="group-link">
+					<span class="group-name">{group.name}</span>
+					{#if group.memberCount != null}
+						<span class="group-meta">{group.memberCount} Mitglieder</span>
+					{/if}
+				</a>
 			</li>
 		{/each}
 	</ul>
 {/if}
 
 <style>
-	.create-link {
+	h1 {
+		font-size: var(--font-size-h3);
+		margin-bottom: var(--space-3);
+	}
+	.create-btn {
 		display: inline-block;
 		margin-bottom: var(--space-3);
-		padding: var(--space-2) var(--space-3);
-		border: 2px solid var(--color-primary);
-		border-radius: 12px;
-		font-weight: 600;
+		padding: 10px 20px;
+		background: var(--color-primary);
+		color: var(--color-bg);
+		border-radius: 8px;
+		font-weight: 700;
+		font-size: var(--font-size-small);
 		text-decoration: none;
 	}
 	.group-list {
@@ -56,12 +67,26 @@
 		gap: var(--space-2);
 	}
 	.group-list li {
-		padding: var(--space-2) var(--space-3);
-		border: 2px solid var(--color-primary);
+		border: 1px solid #e0e0e0;
 		border-radius: 12px;
+		transition: border-color 0.15s;
 	}
-	.group-list a {
-		font-weight: 600;
+	.group-list li:hover {
+		border-color: var(--color-primary);
+	}
+	.group-link {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--space-2) var(--space-3);
+		text-decoration: none;
+	}
+	.group-name {
+		font-weight: 700;
 		font-size: var(--font-size-h5);
+	}
+	.group-meta {
+		font-size: var(--font-size-small);
+		color: var(--color-muted);
 	}
 </style>
