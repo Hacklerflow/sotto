@@ -24,6 +24,7 @@
 	let submitting = $state(false);
 	let createdInvitations = $state<Invitation[]>([]);
 	let createdSurveyId = $state('');
+	let copied = $state(false);
 
 	$effect(() => {
 		adminFetch('/api/admin/groups')
@@ -99,103 +100,213 @@
 			.map((invitation) => `${invitation.email}: ${invitationUrl(invitation.token)}`)
 			.join('\n');
 		await navigator.clipboard.writeText(text);
+		copied = true;
+		setTimeout(() => (copied = false), 2000);
 	}
 </script>
 
 {#if createdInvitations.length > 0}
-	<h1>Umfrage erstellt</h1>
-	<p>{createdInvitations.length} Einladungen verschickt. Teile diese Links mit den Teilnehmern:</p>
-	<ul class="invitation-list">
-		{#each createdInvitations as invitation}
-			<li>
-				<strong>{invitation.email}</strong>
-				<code>{invitationUrl(invitation.token)}</code>
-			</li>
-		{/each}
-	</ul>
-	<div class="actions">
-		<button type="button" onclick={copyAllLinks}>Alle Links kopieren</button>
-		<a href="/admin/surveys/{createdSurveyId}">Zur Umfrage</a>
-	</div>
+	<main>
+		<h1>Umfrage erstellt</h1>
+		<p class="success-text">{createdInvitations.length} Einladungen erstellt. Teile diese Links mit den Teilnehmern:</p>
+
+		<div class="results-header">
+			<h2>Einladungs-Links</h2>
+			<button type="button" class="copy-btn" onclick={copyAllLinks}>
+				{copied ? 'Kopiert!' : 'Alle Links kopieren'}
+			</button>
+		</div>
+		<ul class="invitation-list">
+			{#each createdInvitations as invitation}
+				<li>
+					<span class="inv-email">{invitation.email}</span>
+					<code class="inv-link">{invitationUrl(invitation.token)}</code>
+				</li>
+			{/each}
+		</ul>
+		<div class="actions">
+			<a href="/admin/surveys/{createdSurveyId}" class="primary-link">Zur Umfrage</a>
+		</div>
+	</main>
 {:else}
-	<h1>Neue Umfrage</h1>
-	<form onsubmit={submit}>
-		<label>
-			Titel
-			<input type="text" bind:value={title} />
-		</label>
+	<main>
+		<a href="/admin/surveys" class="back">&larr; Alle Umfragen</a>
 
-		<label>
-			Gruppe
-			<select bind:value={selectedGroupId}>
-				<option value="">— Gruppe wählen —</option>
-				{#each groups as group (group.id)}
-					<option value={group.id}>{group.name}</option>
-				{/each}
-			</select>
-		</label>
-		{#if groups.length === 0}
-			<p class="hint">
-				Noch keine Gruppen vorhanden.
-				<a href="/admin/groups/new">Zuerst eine Gruppe erstellen</a>
-			</p>
-		{/if}
+		<h1>Neue Umfrage</h1>
 
-		<QuestionEditor bind:questions />
-		<DimensionMapper {questions} bind:dimensions />
-		{#if errorMessage}<p role="alert">{errorMessage}</p>{/if}
-		<button type="submit" disabled={submitting}>Umfrage erstellen & einladen</button>
-	</form>
+		<form onsubmit={submit}>
+			<label>
+				<span class="label-text">Titel</span>
+				<input type="text" bind:value={title} placeholder="z.B. Teamzufriedenheit Q4" />
+			</label>
+
+			<label>
+				<span class="label-text">Gruppe</span>
+				<select bind:value={selectedGroupId}>
+					<option value="">— Gruppe wählen —</option>
+					{#each groups as group (group.id)}
+						<option value={group.id}>{group.name}</option>
+					{/each}
+				</select>
+			</label>
+			{#if groups.length === 0}
+				<p class="hint">
+					Noch keine Gruppen vorhanden.
+					<a href="/admin/groups/new">Zuerst eine Gruppe erstellen</a>
+				</p>
+			{/if}
+
+			<QuestionEditor bind:questions />
+			<DimensionMapper {questions} bind:dimensions />
+
+			{#if errorMessage}<p class="error" role="alert">{errorMessage}</p>{/if}
+			<button type="submit" class="submit-btn" disabled={submitting}>
+				{submitting ? 'Wird erstellt …' : 'Umfrage erstellen & einladen'}
+			</button>
+		</form>
+	</main>
 {/if}
 
 <style>
+	main {
+		max-width: 64rem;
+	}
+	.back {
+		font-size: var(--font-size-small);
+		color: var(--color-muted);
+		display: inline-block;
+		margin-bottom: var(--space-2);
+	}
+	.back:hover {
+		color: var(--color-primary);
+	}
+	h1 {
+		font-size: var(--font-size-h3);
+		margin-bottom: var(--space-3);
+	}
+	h2 {
+		font-size: var(--font-size-h5);
+		margin: 0;
+	}
 	form {
 		display: grid;
 		gap: var(--space-3);
 	}
 	label {
 		display: grid;
-		gap: 0.25rem;
+		gap: 4px;
 	}
-	select {
-		padding: var(--space-1) var(--space-2);
-		border: 2px solid var(--color-primary);
+	.label-text {
+		font-size: var(--font-size-small);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-muted);
+	}
+	input[type='text'] {
+		padding: 10px 12px;
+		border: 1px solid #e0e0e0;
 		border-radius: 8px;
 		font-size: inherit;
+		font-family: inherit;
+	}
+	input:focus {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 1px;
+	}
+	select {
+		padding: 10px 12px;
+		border: 1px solid #e0e0e0;
+		border-radius: 8px;
+		font-size: inherit;
+		font-family: inherit;
+	}
+	select:focus {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 1px;
 	}
 	.hint {
 		font-size: var(--font-size-small);
-		opacity: 0.7;
+		color: var(--color-muted);
+	}
+	.error {
+		color: var(--color-accent);
+		font-weight: 600;
+	}
+	.submit-btn {
+		justify-self: start;
+		padding: 12px 28px;
+		background: var(--color-primary);
+		color: var(--color-bg);
+		border: none;
+		border-radius: 8px;
+		font-weight: 700;
+		font-size: inherit;
+		cursor: pointer;
+	}
+	.submit-btn:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+	.success-text {
+		color: var(--color-muted);
+		margin-bottom: var(--space-3);
+	}
+	.results-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: var(--space-2);
+	}
+	.copy-btn {
+		padding: 6px 16px;
+		border: 1px solid #e0e0e0;
+		border-radius: 6px;
+		background: transparent;
+		font-size: var(--font-size-small);
+		font-weight: 600;
+		cursor: pointer;
+		transition: border-color 0.15s;
+	}
+	.copy-btn:hover {
+		border-color: var(--color-primary);
 	}
 	.invitation-list {
 		list-style: none;
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-2);
+		gap: var(--space-1);
 	}
 	.invitation-list li {
 		display: flex;
 		flex-direction: column;
-		gap: 0.25rem;
+		gap: 2px;
 		padding: var(--space-2) var(--space-3);
-		border: 1px solid var(--color-primary);
+		border: 1px solid #e0e0e0;
 		border-radius: 8px;
 	}
-	.invitation-list code {
+	.inv-email {
+		font-weight: 600;
+	}
+	.inv-link {
 		font-size: var(--font-size-small);
+		color: var(--color-muted);
 		word-break: break-all;
 	}
 	.actions {
-		display: flex;
-		gap: var(--space-2);
-		margin-top: var(--space-2);
+		margin-top: var(--space-3);
 	}
-	.actions a {
-		padding: var(--space-2) var(--space-3);
-		border: 2px solid var(--color-primary);
-		border-radius: 12px;
-		font-weight: 600;
+	.primary-link {
+		display: inline-block;
+		padding: 10px 24px;
+		background: var(--color-primary);
+		color: var(--color-bg);
+		border-radius: 8px;
+		font-weight: 700;
 		text-decoration: none;
+	}
+	.primary-link:hover {
+		opacity: 0.85;
 	}
 </style>
