@@ -1,0 +1,60 @@
+services:
+  sotto-web:
+    build:
+      context: .
+      args:
+        BUILD_HASH: ${BUILD_HASH:-unknown}
+    restart: unless-stopped
+    environment:
+      IDENTITY_DB_URL: postgres://sotto:${IDENTITY_DB_PASSWORD:?Set IDENTITY_DB_PASSWORD}@sotto-identity-db:5432/sotto_identity
+      ANSWER_DB_URL: postgres://sotto:${ANSWER_DB_PASSWORD:?Set ANSWER_DB_PASSWORD}@sotto-answer-db:5432/sotto_answer
+      ADMIN_SECRET: ${ADMIN_SECRET:?Set ADMIN_SECRET}
+      ORIGIN: https://sotto.piecekeeper.art
+    ports:
+      - "127.0.0.1:3100:3000"
+    depends_on:
+      sotto-identity-db:
+        condition: service_healthy
+      sotto-answer-db:
+        condition: service_healthy
+    networks: [identity-net, answer-net]
+
+  sotto-identity-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sotto
+      POSTGRES_PASSWORD: ${IDENTITY_DB_PASSWORD:?Set IDENTITY_DB_PASSWORD}
+      POSTGRES_DB: sotto_identity
+    volumes:
+      - identity-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sotto -d sotto_identity"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks: [identity-net]
+
+  sotto-answer-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sotto
+      POSTGRES_PASSWORD: ${ANSWER_DB_PASSWORD:?Set ANSWER_DB_PASSWORD}
+      POSTGRES_DB: sotto_answer
+    volumes:
+      - answer-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sotto -d sotto_answer"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks: [answer-net]
+
+networks:
+  identity-net:
+  answer-net:
+
+volumes:
+  identity-data:
+  answer-data:
