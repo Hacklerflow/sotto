@@ -6,7 +6,7 @@
 	<section class="hero">
 		<p class="logo">sotto</p>
 		<h1>sotto voce</h1>
-		<p class="tagline">Die Wahrheit, die man nur leise sagt.</p>
+		<p class="tagline">Ehrliche Antworten, kryptografisch geschützt.</p>
 		<p class="intro">
 			Sotto ist eine Open-Source-Plattform für anonyme Gruppenumfragen.
 			Deine Einladung berechtigt dich zu genau einer Antwort — aber die Antwort selbst wird
