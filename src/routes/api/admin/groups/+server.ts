@@ -20,9 +20,16 @@ export const POST: RequestHandler = async ({ request }) => {
 		if (typeof member.name !== 'string') error(400, 'member.name is required');
 		if (typeof member.email !== 'string') error(400, 'member.email is required');
 	}
-	const group = await createGroup(
-		name.trim(),
-		members as { name: string; email: string }[]
-	);
-	return json(group, { status: 201 });
+	try {
+		const group = await createGroup(
+			name.trim(),
+			members as { name: string; email: string }[]
+		);
+		return json(group, { status: 201 });
+	} catch (cause) {
+		if (cause instanceof Error && cause.message.includes('already exists')) {
+			error(409, cause.message);
+		}
+		throw cause;
+	}
 };

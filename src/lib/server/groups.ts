@@ -9,6 +9,11 @@ export async function createGroup(
 	name: string,
 	members: { name: string; email: string }[]
 ): Promise<Group> {
+	const [existing] = await identityDb
+		.select()
+		.from(groups)
+		.where(eq(groups.name, name));
+	if (existing) throw new Error(`group "${name}" already exists`);
 	const [group] = await identityDb.insert(groups).values({ name }).returning();
 	if (members.length > 0) {
 		const unique = deduplicateMembers(members);
