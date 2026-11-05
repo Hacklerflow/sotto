@@ -111,10 +111,14 @@
 		gap: var(--space-2);
 		min-height: 48px;
 		padding: 0.5rem var(--space-2);
-		border: 2px solid var(--color-primary);
+		border: 1px solid #e0e0e0;
 		border-radius: 12px;
 		font-size: var(--font-size-body);
 		cursor: pointer;
+		transition: border-color 0.15s, background 0.15s, color 0.15s;
+	}
+	.choice:hover {
+		border-color: var(--color-primary);
 	}
 	.choice:has(input:checked) {
 		background: var(--color-primary);
@@ -122,8 +126,8 @@
 		color: var(--color-bg);
 	}
 	.choice input {
-		width: 24px;
-		height: 24px;
+		width: 20px;
+		height: 20px;
 		flex-shrink: 0;
 	}
 	.number-field {
@@ -136,12 +140,17 @@
 		min-height: 48px;
 		font-size: var(--font-size-h5);
 		padding: 0 var(--space-2);
-		border: 2px solid var(--color-primary);
+		border: 1px solid #e0e0e0;
 		border-radius: 12px;
 		min-width: 0;
 	}
+	.number-field input:focus {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 1px;
+	}
 	.unit {
 		font-size: var(--font-size-body);
+		color: var(--color-muted);
 	}
 	.range-field {
 		display: flex;
@@ -153,14 +162,16 @@
 		font-weight: 700;
 		text-align: center;
 	}
-	.range-field input {
+	.range-field input[type='range'] {
 		width: 100%;
 		min-height: 48px;
+		accent-color: var(--color-primary);
 	}
 	.range-bounds {
 		display: flex;
 		justify-content: space-between;
 		font-size: var(--font-size-small);
+		color: var(--color-muted);
 	}
 	.visually-hidden {
 		position: absolute;

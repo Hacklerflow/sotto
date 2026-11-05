@@ -17,7 +17,7 @@
 	const messages: Record<Phase, string> = {
 		anonymizing: 'Anonymisierung läuft …',
 		submitting: 'Antwort wird übermittelt …',
-		done: 'Erfolgreich abgegeben. Danke für deine Teilnahme.',
+		done: 'Erfolgreich abgegeben.',
 		error: 'Das Absenden ist fehlgeschlagen.'
 	};
 
@@ -45,16 +45,22 @@
 <div class="flow" role="status" aria-live="polite">
 	{#if phase === 'anonymizing' || phase === 'submitting'}
 		<div class="spinner" aria-hidden="true"></div>
-	{/if}
-	<p class="message" data-phase={phase}>{messages[phase]}</p>
-	{#if phase === 'submitting'}
-		<p class="hint">
-			Die Übermittlung wird zufällig um bis zu 30 Sekunden verzögert, damit sie sich nicht deiner
-			Anmeldung zuordnen lässt. Bitte lass diese Seite offen.
-		</p>
-	{/if}
-	{#if phase === 'error'}
-		<p class="hint">{errorMessage}</p>
+		<p class="message">{messages[phase]}</p>
+		{#if phase === 'submitting'}
+			<p class="hint">
+				Die Übermittlung wird zufällig um bis zu 30 Sekunden verzögert, damit sie sich nicht deiner
+				Anmeldung zuordnen lässt. Bitte lass diese Seite offen.
+			</p>
+		{/if}
+	{:else if phase === 'done'}
+		<div class="done-icon" aria-hidden="true">&#10003;</div>
+		<p class="message">{messages[phase]}</p>
+		<p class="done-sub">Danke für deine Teilnahme.</p>
+		<a href="/survey/{surveyId}/results" class="results-link">Ergebnisse ansehen</a>
+	{:else if phase === 'error'}
+		<div class="error-icon" aria-hidden="true">!</div>
+		<p class="message">{messages[phase]}</p>
+		<p class="hint error-hint">{errorMessage}</p>
 		<button type="button" onclick={() => void run()}>Erneut versuchen</button>
 	{/if}
 </div>
@@ -68,34 +74,89 @@
 		text-align: center;
 		min-height: 60dvh;
 		justify-content: center;
+		padding: var(--space-3) var(--space-2);
 	}
 	.spinner {
 		width: 48px;
 		height: 48px;
-		border: 5px solid #e5e5ea;
-		border-top-color: var(--color-accent);
+		border: 3px solid #e0e0e0;
+		border-top-color: var(--color-primary);
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
 	}
 	.message {
-		font-size: var(--font-size-h5);
-		font-weight: 600;
+		font-size: var(--font-size-h4);
+		font-weight: 700;
 		margin: 0;
 	}
 	.hint {
 		font-size: var(--font-size-small);
+		color: var(--color-muted);
 		margin: 0;
+		max-width: 28rem;
+		line-height: 1.6;
+	}
+	.error-hint {
+		color: var(--color-accent);
+	}
+	.done-icon {
+		width: 64px;
+		height: 64px;
+		border-radius: 50%;
+		background: var(--color-primary);
+		color: var(--color-bg);
+		font-size: 2rem;
+		font-weight: 900;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.done-sub {
+		color: var(--color-muted);
+		margin: 0;
+	}
+	.error-icon {
+		width: 64px;
+		height: 64px;
+		border-radius: 50%;
+		background: var(--color-accent);
+		color: var(--color-bg);
+		font-size: 2rem;
+		font-weight: 900;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.results-link {
+		display: inline-flex;
+		align-items: center;
+		min-height: 48px;
+		padding: 0 24px;
+		margin-top: var(--space-2);
+		background: var(--color-primary);
+		color: var(--color-bg);
+		border-radius: 8px;
+		font-weight: 700;
+		text-decoration: none;
+		transition: opacity 0.15s;
+	}
+	.results-link:hover {
+		opacity: 0.85;
 	}
 	button {
 		min-height: 48px;
-		padding: 0 var(--space-3);
+		padding: 0 24px;
 		font-size: var(--font-size-body);
-		font-weight: 600;
-		border-radius: 12px;
-		border: 2px solid var(--color-primary);
-		background: var(--color-primary);
-		color: var(--color-bg);
+		font-weight: 700;
+		border-radius: 8px;
+		border: 1px solid #e0e0e0;
+		background: transparent;
+		color: var(--color-primary);
 		cursor: pointer;
+		transition: border-color 0.15s;
+	}
+	button:hover {
+		border-color: var(--color-primary);
 	}
 	@keyframes spin {
 		to {

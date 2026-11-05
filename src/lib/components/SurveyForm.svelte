@@ -61,18 +61,27 @@
 			<QuestionInput {question} bind:value={values[question.id]} />
 			<div class="step-nav">
 				{#if index > 0}
-					<button type="button" class="secondary" onclick={() => scrollToStep(index - 1)}>
+					<button type="button" class="nav-btn secondary" onclick={() => scrollToStep(index - 1)}>
 						Zurück
 					</button>
 				{/if}
 				{#if index < total - 1}
 					<button
 						type="button"
-						class="primary"
+						class="nav-btn primary"
 						disabled={values[question.id] == null}
 						onclick={() => scrollToStep(index + 1)}
 					>
 						Weiter
+					</button>
+				{:else}
+					<button
+						type="button"
+						class="nav-btn primary"
+						disabled={values[question.id] == null}
+						onclick={() => scrollToStep(total)}
+					>
+						Zusammenfassung
 					</button>
 				{/if}
 			</div>
@@ -81,16 +90,19 @@
 
 	<section class="step summary" class:active={activeStep === total} id="step-{total}" aria-label="Zusammenfassung">
 		<h2>Zusammenfassung</h2>
-		<dl>
-			{#each config.questions as question (question.id)}
-				<dt>{question.text}</dt>
-				<dd>{formatAnswer(values[question.id])}</dd>
+		<p class="summary-intro">Prüfe deine Antworten vor dem Absenden.</p>
+		<dl class="summary-list">
+			{#each config.questions as question, index (question.id)}
+				<div class="summary-item" role="button" tabindex="0" onclick={() => scrollToStep(index)} onkeydown={(event) => event.key === 'Enter' && scrollToStep(index)}>
+					<dt>{question.text}</dt>
+					<dd class:unanswered={values[question.id] == null}>{formatAnswer(values[question.id])}</dd>
+				</div>
 			{/each}
 		</dl>
 		{#if !complete}
 			<p class="hint">Bitte beantworte alle Fragen ({answeredCount} von {total}).</p>
 		{/if}
-		<button type="submit" class="primary" disabled={!complete}>Anonym absenden</button>
+		<button type="submit" class="submit-btn" disabled={!complete}>Anonym absenden</button>
 	</section>
 </form>
 
@@ -102,14 +114,16 @@
 	.progress {
 		position: sticky;
 		top: 0;
-		height: 8px;
-		background: #e5e5ea;
+		height: 4px;
+		background: #e0e0e0;
 		z-index: 1;
+		border-radius: 2px;
 	}
 	.progress-bar {
 		height: 100%;
-		background: var(--color-accent);
-		transition: width 0.2s;
+		background: var(--color-primary);
+		border-radius: 2px;
+		transition: width 0.3s ease;
 	}
 	.step {
 		min-height: 80dvh;
@@ -127,42 +141,101 @@
 	}
 	.step-count {
 		font-size: var(--font-size-small);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-muted);
 		margin: 0;
 	}
 	.step-nav {
 		display: flex;
-		gap: var(--space-1);
+		gap: var(--space-2);
 	}
-	button {
+	.nav-btn {
 		min-height: 48px;
 		min-width: 48px;
-		padding: 0 var(--space-3);
+		padding: 0 24px;
 		font-size: var(--font-size-body);
-		font-weight: 600;
-		border-radius: 12px;
-		border: 2px solid var(--color-primary);
+		font-weight: 700;
+		border-radius: 8px;
 		cursor: pointer;
 	}
-	button.primary {
+	.nav-btn.primary {
 		background: var(--color-primary);
 		color: var(--color-bg);
+		border: none;
 	}
-	button.secondary {
-		background: var(--color-bg);
+	.nav-btn.secondary {
+		background: transparent;
 		color: var(--color-primary);
+		border: 1px solid #e0e0e0;
 	}
-	button:disabled {
+	.nav-btn.secondary:hover {
+		border-color: var(--color-primary);
+	}
+	.nav-btn:disabled {
 		opacity: 0.4;
 		cursor: not-allowed;
 	}
+	h2 {
+		font-size: var(--font-size-h3);
+		margin: 0;
+	}
+	.summary-intro {
+		color: var(--color-muted);
+		margin: 0;
+	}
+	.summary-list {
+		margin: var(--space-2) 0 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+	}
+	.summary-item {
+		padding: var(--space-2) var(--space-3);
+		border: 1px solid #e0e0e0;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: border-color 0.15s;
+	}
+	.summary-item:hover {
+		border-color: var(--color-primary);
+	}
 	dt {
 		font-weight: 600;
-		margin-top: var(--space-2);
+		font-size: var(--font-size-small);
+		margin: 0;
 	}
 	dd {
-		margin: 0;
+		margin: 4px 0 0;
+	}
+	dd.unanswered {
+		color: var(--color-accent);
+		font-style: italic;
 	}
 	.hint {
 		font-size: var(--font-size-small);
+		color: var(--color-accent);
+		font-weight: 600;
+	}
+	.submit-btn {
+		align-self: flex-start;
+		min-height: 56px;
+		padding: 0 32px;
+		font-size: var(--font-size-h5);
+		font-weight: 700;
+		border-radius: 12px;
+		border: none;
+		background: var(--color-primary);
+		color: var(--color-bg);
+		cursor: pointer;
+		transition: opacity 0.15s;
+	}
+	.submit-btn:hover {
+		opacity: 0.85;
+	}
+	.submit-btn:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
 	}
 </style>
