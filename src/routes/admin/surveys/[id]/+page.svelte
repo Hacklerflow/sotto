@@ -20,6 +20,7 @@
 	let freezeError = $state('');
 	let freezeSuccess = $state(false);
 	let copied = $state(false);
+	let toggling = $state(false);
 
 	$effect(() => {
 		adminFetch(`/api/admin/surveys/${surveyId}`)
@@ -93,6 +94,24 @@
 		copied = true;
 		setTimeout(() => (copied = false), 2000);
 	}
+
+	async function toggleStatus() {
+		if (!survey) return;
+		toggling = true;
+		const newStatus = survey.status === 'open' ? 'closed' : 'open';
+		try {
+			const response = await adminFetch(`/api/admin/surveys/${surveyId}`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ status: newStatus })
+			});
+			if (response.ok) {
+				survey.status = newStatus;
+			}
+		} finally {
+			toggling = false;
+		}
+	}
 </script>
 
 <main>
@@ -130,6 +149,9 @@
 		<a href="/survey/{surveyId}/results" class="action-btn">Ergebnisse ansehen</a>
 		<button type="button" class="action-btn secondary" onclick={copyResultsLink}>
 			{copied ? 'Kopiert!' : 'Ergebnis-Link kopieren'}
+		</button>
+		<button type="button" class="action-btn" class:danger={survey.status === 'open'} disabled={toggling} onclick={toggleStatus}>
+			{toggling ? '…' : survey.status === 'open' ? 'Umfrage schließen' : 'Umfrage wieder öffnen'}
 		</button>
 	</nav>
 
@@ -297,6 +319,11 @@
 	.action-btn.secondary {
 		background: transparent;
 		color: var(--color-primary);
+	}
+	.action-btn.danger {
+		background: var(--color-accent);
+		border-color: var(--color-accent);
+		color: var(--color-on-primary);
 	}
 	.freeze-section {
 		margin-top: var(--space-4);

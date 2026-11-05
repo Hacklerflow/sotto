@@ -3,11 +3,19 @@ import type { RequestHandler } from './$types';
 import { getSession } from '../../../lib/server/auth';
 import { blindSign } from '../../../lib/server/blind-signer';
 import { base64ToBytes, bytesToBase64 } from '../../../lib/encoding';
+import { checkRateLimit } from '../../../lib/server/rate-limit';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const BLINDED_MESSAGE_LENGTH_BYTES = 256;
 
-export const POST: RequestHandler = async ({ request, cookies }) => {
+export const POST: RequestHandler = async ({ request, cookies, getClientAddress }) => {
+	const rate = checkRateLimit(`blind-sign:${getClientAddress()}`, 5);
+	if (!rate.allowed) {
+		return json({ error: 'Too many requests' }, {
+			status: 429,
+			headers: { 'Retry-After': String(Math.ceil(rate.retryAfterMs / 1000)) }
+		});
+	}
 	const session = await getSession(cookies);
 	if (!session) error(401, 'Unauthorized');
 	const body: unknown = await request.json().catch(() => null);

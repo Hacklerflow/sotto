@@ -15,6 +15,7 @@ import {
 	surveys,
 	usedSignatures
 } from '../../../drizzle/answer-schema';
+import { validateAnswers, validateSurveyConfig } from '../types/survey';
 
 export type EncryptedAnswers = Record<string, unknown>;
 
@@ -133,10 +134,13 @@ export async function verifyAndStore(
 	const publicKey = await getSurveyPublicKey(surveyId);
 	if (!publicKey) throw new Error('survey not found');
 	const [survey] = await answerDb
-		.select({ status: surveys.status })
+		.select({ status: surveys.status, config: surveys.config })
 		.from(surveys)
 		.where(eq(surveys.id, surveyId));
 	if (!survey || survey.status !== 'open') throw new Error('survey not open');
+
+	const config = validateSurveyConfig(survey.config);
+	const validatedAnswers = validateAnswers(answers, config);
 
 	const valid = await suite.verify(await importPublicKey(publicKey), signature, message);
 	if (!valid) throw new Error('invalid signature');
@@ -151,6 +155,6 @@ export async function verifyAndStore(
 		if (!claimed) throw new Error('signature already used');
 		await transaction
 			.insert(responses)
-			.values({ surveyId, blindSignature: toBase64(signature), answers });
+			.values({ surveyId, blindSignature: toBase64(signature), answers: validatedAnswers });
 	});
 }

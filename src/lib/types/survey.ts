@@ -86,6 +86,50 @@ function validateQuestion(raw: unknown, seenIds: Set<string>): Question {
 	return question;
 }
 
+export function validateAnswers(
+	answers: Record<string, unknown>,
+	config: SurveyConfig
+): Record<string, unknown> {
+	const validated: Record<string, unknown> = {};
+	for (const question of config.questions) {
+		const value = answers[question.id];
+		if (value === undefined || value === null) continue;
+		switch (question.type) {
+			case 'number':
+				if (typeof value !== 'number' || !Number.isFinite(value)) {
+					throw new Error(`answer for ${question.id} must be a finite number`);
+				}
+				validated[question.id] = value;
+				break;
+			case 'range':
+				if (typeof value !== 'number' || !Number.isFinite(value)) {
+					throw new Error(`answer for ${question.id} must be a finite number`);
+				}
+				if (question.range && (value < question.range.min || value > question.range.max)) {
+					throw new Error(`answer for ${question.id} out of range`);
+				}
+				validated[question.id] = value;
+				break;
+			case 'single-choice':
+				if (typeof value !== 'string' || !question.options?.includes(value)) {
+					throw new Error(`answer for ${question.id} must be one of the options`);
+				}
+				validated[question.id] = value;
+				break;
+			case 'multi-choice':
+				if (
+					!Array.isArray(value) ||
+					!value.every((item) => typeof item === 'string' && question.options?.includes(item))
+				) {
+					throw new Error(`answer for ${question.id} must be an array of valid options`);
+				}
+				validated[question.id] = value;
+				break;
+		}
+	}
+	return validated;
+}
+
 export function validateSurveyConfig(config: unknown): SurveyConfig {
 	if (!isRecord(config)) throw new Error('config must be an object');
 	const rawQuestions = config.questions ?? [];

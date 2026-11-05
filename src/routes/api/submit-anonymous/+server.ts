@@ -2,11 +2,19 @@ import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { verifyAndStore } from '../../../lib/server/blind-signer';
 import { base64ToBytes } from '../../../lib/encoding';
+import { checkRateLimit } from '../../../lib/server/rate-limit';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Anonymous by design: this handler never reads cookies or the session, only the signed payload.
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, getClientAddress }) => {
+	const rate = checkRateLimit(`submit:${getClientAddress()}`, 10);
+	if (!rate.allowed) {
+		return json({ error: 'Too many requests' }, {
+			status: 429,
+			headers: { 'Retry-After': String(Math.ceil(rate.retryAfterMs / 1000)) }
+		});
+	}
 	const body: unknown = await request.json().catch(() => null);
 	if (typeof body !== 'object' || body === null) error(400, 'Invalid JSON body');
 	const { surveyId, signature, message, answers } = body as {
@@ -39,6 +47,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		if (reason === 'invalid signature') error(403, 'invalid signature');
 		if (reason === 'survey not found') error(404, 'survey not found');
 		if (reason === 'survey not open') error(409, 'survey not open');
+		if (reason.startsWith('answer for ')) error(400, reason);
 		error(500, 'submission failed');
 	}
 	return json({ ok: true }, { status: 201 });
