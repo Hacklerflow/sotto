@@ -9,7 +9,7 @@
 {#if !isAdmin}
 	<header class="site-header">
 		<a href="/" class="site-logo">sotto</a>
-		<nav>
+		<nav aria-label="Hauptnavigation">
 			<a href="/trust">Wie es funktioniert</a>
 			<a href="/admin">Admin</a>
 		</nav>

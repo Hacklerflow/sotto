@@ -71,7 +71,7 @@
 		<div class="guarantee-grid">
 			<div class="guarantee-card">
 				<div class="guarantee-icon">
-					<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 						<path d="M16 3L4 8v7c0 7.73 5.12 14.97 12 17 6.88-2.03 12-9.27 12-17V8L16 3z" stroke="currentColor" stroke-width="2" fill="none"/>
 						<path d="M11 16l3.5 3.5L21 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
@@ -81,7 +81,7 @@
 			</div>
 			<div class="guarantee-card">
 				<div class="guarantee-icon">
-					<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 						<rect x="3" y="6" width="11" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
 						<rect x="18" y="6" width="11" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
 						<line x1="14" y1="16" x2="18" y2="16" stroke="currentColor" stroke-width="2" stroke-dasharray="2 2"/>
@@ -92,7 +92,7 @@
 			</div>
 			<div class="guarantee-card">
 				<div class="guarantee-icon">
-					<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 						<circle cx="10" cy="16" r="3" stroke="currentColor" stroke-width="2"/>
 						<circle cx="22" cy="16" r="3" stroke="currentColor" stroke-width="2"/>
 						<circle cx="16" cy="8" r="3" stroke="currentColor" stroke-width="2"/>

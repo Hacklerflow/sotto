@@ -45,6 +45,47 @@ npm test    # needs the two databases from docker compose
 
 The test setup defaults to `postgres://sotto:sotto-dev@localhost:5433/sotto_identity` and `.../localhost:5434/sotto_answer`; override with `IDENTITY_DB_URL` and `ANSWER_DB_URL`.
 
+## Deployment
+
+### Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `IDENTITY_DB_PASSWORD` | yes | Password for the identity database |
+| `ANSWER_DB_PASSWORD` | yes | Password for the answer database |
+| `SOTTO_DOMAIN` | no | Public domain (default: `localhost`). Caddy auto-provisions TLS for real domains. |
+| `ADMIN_SECRET` | yes | Bearer token for admin API access |
+| `BUILD_HASH` | no | Git commit hash, shown on `/trust/expert` for transparency |
+
+### Production
+
+```bash
+export IDENTITY_DB_PASSWORD=$(openssl rand -base64 32)
+export ANSWER_DB_PASSWORD=$(openssl rand -base64 32)
+export SOTTO_DOMAIN=survey.example.com
+export ADMIN_SECRET=$(openssl rand -base64 32)
+
+docker compose up -d
+```
+
+Docker Compose starts four services:
+
+- **sotto-web** — SvelteKit app (port 3000, internal). Runs Drizzle migrations on startup.
+- **sotto-identity-db** — PostgreSQL 16 for identities (port 5433 on localhost for debugging).
+- **sotto-answer-db** — PostgreSQL 16 for answers (port 5434 on localhost for debugging).
+- **sotto-caddy** — Caddy reverse proxy (ports 80/443). Automatic TLS when `SOTTO_DOMAIN` is a real domain.
+
+The two database services are on separate Docker networks (`identity-net`, `answer-net`). The web app is the only service connected to both.
+
+### Backups
+
+Both databases use named Docker volumes (`identity-data`, `answer-data`). Back them up with:
+
+```bash
+docker compose exec sotto-identity-db pg_dump -U sotto sotto_identity > identity-backup.sql
+docker compose exec sotto-answer-db pg_dump -U sotto sotto_answer > answer-backup.sql
+```
+
 ## Architecture
 
 ```
