@@ -1,43 +1,71 @@
 # Sotto
 
-*sotto voce* — anonymous group surveys with cryptographic anonymity guarantees.
+*sotto voce* — ehrliche Antworten, kryptografisch geschützt.
 
-Participants are invited by e-mail, can answer exactly once, and nobody (not even the operator) can link an answer to a person. Results are only released once enough people have answered.
+Sotto is an open-source platform for anonymous group surveys. Participants are invited by e-mail, can answer exactly once, and nobody — not even the operator — can link an answer to a person. Results are only released once enough people have answered.
 
-## Tech stack
+## Security Model
 
-SvelteKit 3 (Svelte 5, runes), TypeScript strict, Drizzle ORM, PostgreSQL (two databases), RSA blind signatures (RFC 9474, `@cloudflare/blindrsa-ts`), ECharts, Vitest.
+Sotto does not rely on trust. It uses **Blind RSA Signatures** (RFC 9474, RSABSSA-SHA384-PSS-Deterministic) to mathematically separate identity from response:
 
-## Setup
+1. A participant redeems their invitation — the server marks it as used.
+2. The browser blinds a random token and sends it to the server.
+3. The server signs the blinded token without seeing the original.
+4. The browser unblinds the signature and submits the answer on a fresh connection — no session cookie, no referrer, no correlation.
+
+Additional guarantees:
+
+- **Dual databases.** Identities and answers live in two physically separate PostgreSQL instances with no foreign keys or shared connection.
+- **k-Anonymity.** Results appear only after a minimum number of responses. Rare answer combinations are binned before aggregation.
+- **Frozen snapshots.** Results are computed once and served as immutable snapshots.
+
+See [`/trust`](src/routes/trust/+page.svelte) for the plain-language explanation and [`/trust/expert`](src/routes/trust/expert/+page.svelte) for the full technical architecture.
+
+## Tech Stack
+
+SvelteKit 3 (Svelte 5, runes), TypeScript strict, Drizzle ORM, 2× PostgreSQL, `@cloudflare/blindrsa-ts` v0.4.4, ECharts, Vitest.
+
+## Quick Start
 
 ```bash
+# Production (Docker Compose)
 export IDENTITY_DB_PASSWORD=<choose-a-strong-password>
 export ANSWER_DB_PASSWORD=<choose-a-different-strong-password>
-docker compose up -d      # web app + identity database + answer database
+docker compose up -d
 ```
 
-The app is then served through the bundled Caddy reverse proxy (see `Caddyfile` and `docker-compose.yml`).
-
-Local development and tests:
+The app is served through the bundled Caddy reverse proxy (see `Caddyfile` and `docker-compose.yml`).
 
 ```bash
+# Local development
 npm install
 npm run dev
-npm test                  # needs the two databases from docker compose
+npm test    # needs the two databases from docker compose
 ```
 
 The test setup defaults to `postgres://sotto:sotto-dev@localhost:5433/sotto_identity` and `.../localhost:5434/sotto_answer`; override with `IDENTITY_DB_URL` and `ANSWER_DB_URL`.
 
 ## Architecture
 
-- **Dual database.** The *identity DB* holds users, invitations, sessions, signing keys and signing grants. The *answer DB* holds surveys, public keys, responses and used-signature hashes. There are no foreign keys across the two, and the answer tables carry no timestamps, user references or ordering columns.
-- **Blind signatures.** After redeeming an invitation the browser blinds a random message, the server signs it blindly (once per user and survey), and the browser unblinds the signature. The answer is submitted without a session cookie, after a random delay, together with the unblinded signature. The server can verify the signature but cannot connect it to the signing request.
-- **Threshold and binning.** Results are available only after a minimum number of responses; rare answer combinations are suppressed or binned before aggregation. Frozen snapshots are what the results page shows.
-- **Transparency.** `/trust` explains the guarantees in plain language, `/trust/expert` in technical detail.
+```
+┌─────────────┐          ┌──────────────┐
+│ Identity DB │          │  Answer DB   │
+│  (port 5433)│          │ (port 5434)  │
+│             │          │              │
+│ invitations │          │ surveys      │
+│ email hashes│   no FK  │ public keys  │
+│ groups      │◄────────►│ responses    │
+│ sessions    │          │ snapshots    │
+└─────────────┘          └──────────────┘
+```
+
+- The **identity DB** knows who may participate. The **answer DB** knows what was answered.
+- The only function that reads both is `getSurveyProgress()` — it returns counts, never associations.
+- Answer tables carry no timestamps, user references, or ordering columns.
 
 ## Contributing
 
-Issues and pull requests are welcome. Use Conventional Commits, keep TypeScript strict (no `any`), and add tests for behaviour changes.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
