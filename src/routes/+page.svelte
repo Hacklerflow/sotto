@@ -16,17 +16,14 @@
 
 	<section class="features">
 		<div class="feature">
-			<span class="feature-icon">&#x1f512;</span>
 			<h2>Kryptografische Anonymität</h2>
 			<p>Blinde RSA-Signaturen (RFC 9474) trennen deine Identität von deiner Antwort — mathematisch, nicht durch Versprechen.</p>
 		</div>
 		<div class="feature">
-			<span class="feature-icon">&#x1f4ca;</span>
 			<h2>k-Anonymität</h2>
 			<p>Ergebnisse erscheinen erst, wenn genug Menschen teilgenommen haben, damit sich niemand herauslesen lässt.</p>
 		</div>
 		<div class="feature">
-			<span class="feature-icon">&#x1f5c4;</span>
 			<h2>Getrennte Datenbanken</h2>
 			<p>Identitäten und Antworten liegen in zwei physisch getrennten Datenbanken. Selbst ein Leak verbindet nichts.</p>
 		</div>
@@ -84,11 +81,6 @@
 		padding: var(--space-3);
 		border: 1px solid var(--color-border);
 		border-radius: 12px;
-	}
-	.feature-icon {
-		font-size: 1.5rem;
-		display: block;
-		margin-bottom: var(--space-1);
 	}
 	.feature h2 {
 		font-size: var(--font-size-h5);
