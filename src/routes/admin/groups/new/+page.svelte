@@ -124,7 +124,7 @@
 	input[type='text'],
 	input[type='email'] {
 		padding: 10px 12px;
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		font-size: inherit;
 		font-family: inherit;
@@ -134,7 +134,7 @@
 		outline-offset: 1px;
 	}
 	.members-section {
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 12px;
 		padding: var(--space-3);
 		display: grid;
@@ -150,7 +150,7 @@
 	}
 	.remove-btn {
 		background: none;
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 6px;
 		font-size: 1.2rem;
 		cursor: pointer;

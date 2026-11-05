@@ -89,14 +89,14 @@
 		line-height: 1.7;
 	}
 	code {
-		background: #f5f5f5;
+		background: var(--color-surface);
 		padding: 2px 6px;
 		border-radius: 4px;
 		font-size: 0.9em;
 	}
 	.build-section {
 		padding: var(--space-3);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 12px;
 	}
 	.hash {

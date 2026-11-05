@@ -172,7 +172,7 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: var(--space-2) var(--space-3);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 8px;
 	}
 	.member-info {
@@ -188,7 +188,7 @@
 	}
 	.remove-btn {
 		background: none;
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 6px;
 		padding: 4px 12px;
 		cursor: pointer;
@@ -208,7 +208,7 @@
 	.add-member input {
 		flex: 1;
 		padding: 8px 12px;
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		font-size: inherit;
 		font-family: inherit;
@@ -234,7 +234,7 @@
 		gap: var(--space-1);
 	}
 	.survey-list li {
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		transition: border-color 0.15s;
 	}

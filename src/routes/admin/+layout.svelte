@@ -74,7 +74,7 @@
 		display: none;
 		margin-left: auto;
 		background: none;
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		width: 40px;
 		height: 40px;
@@ -97,7 +97,7 @@
 		font-size: var(--font-size-small);
 		font-weight: 600;
 		background: none;
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		padding: 6px 12px;
 		cursor: pointer;
@@ -120,13 +120,16 @@
 	form input {
 		min-height: 48px;
 		font-size: var(--font-size-body);
+		font-family: inherit;
 		padding: 0 var(--space-2);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		margin-top: var(--space-1);
 		display: block;
 		width: 100%;
 		box-sizing: border-box;
+		background: var(--color-surface);
+		color: var(--color-primary);
 	}
 	form input:focus {
 		outline: 2px solid var(--color-primary);
@@ -152,7 +155,7 @@
 			width: 100%;
 			gap: 0;
 			margin-left: 0;
-			border: 1px solid #e0e0e0;
+			border: 1px solid var(--color-border);
 			border-radius: 8px;
 			overflow: hidden;
 		}
@@ -168,7 +171,7 @@
 			text-align: left;
 			border: none;
 			border-radius: 0;
-			border-bottom: 1px solid #e0e0e0;
+			border-bottom: 1px solid var(--color-border);
 			box-sizing: border-box;
 		}
 		nav .sign-out {

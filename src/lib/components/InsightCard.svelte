@@ -30,7 +30,7 @@
 	}
 	.badge {
 		display: inline-block;
-		color: #fff;
+		color: var(--color-on-primary);
 		font-size: 12px;
 		font-weight: 700;
 		text-transform: uppercase;

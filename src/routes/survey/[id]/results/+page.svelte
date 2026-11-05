@@ -175,7 +175,7 @@
 	}
 	.progress-track {
 		height: 8px;
-		background: #e0e0e0;
+		background: var(--color-border);
 		border-radius: 4px;
 		overflow: hidden;
 	}
@@ -199,7 +199,7 @@
 	.chart-section {
 		margin: var(--space-4) 0;
 		padding: var(--space-3);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 12px;
 	}
 	.empty {

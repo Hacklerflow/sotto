@@ -79,7 +79,7 @@
 	.spinner {
 		width: 48px;
 		height: 48px;
-		border: 3px solid #e0e0e0;
+		border: 3px solid var(--color-border);
 		border-top-color: var(--color-primary);
 		border-radius: 50%;
 		animation: spin 1s linear infinite;
@@ -149,7 +149,7 @@
 		font-size: var(--font-size-body);
 		font-weight: 700;
 		border-radius: 8px;
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		background: transparent;
 		color: var(--color-primary);
 		cursor: pointer;

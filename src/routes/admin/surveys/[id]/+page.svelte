@@ -293,7 +293,7 @@
 	.freeze-btn {
 		padding: 12px 24px;
 		background: var(--color-accent);
-		color: #fff;
+		color: var(--color-on-primary);
 		border: none;
 		border-radius: 8px;
 		font-weight: 700;
@@ -325,7 +325,7 @@
 	}
 	.question-card {
 		padding: var(--space-2) var(--space-3);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 8px;
 	}
 	.question-header {
@@ -345,7 +345,7 @@
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--color-muted);
-		background: #f5f5f5;
+		background: var(--color-surface);
 		padding: 2px 8px;
 		border-radius: 4px;
 	}
@@ -381,7 +381,7 @@
 		align-items: center;
 		gap: var(--space-2);
 		padding: 10px var(--space-2);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 8px;
 	}
 	.dimension-chart {

@@ -66,7 +66,7 @@
 		flex-direction: column;
 		align-items: center;
 		padding: var(--space-3);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 12px;
 	}
 	.stat-value {
@@ -92,7 +92,7 @@
 		align-items: center;
 		gap: var(--space-2);
 		padding: var(--space-2) var(--space-3);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 12px;
 		text-decoration: none;
 		font-weight: 600;

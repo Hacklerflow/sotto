@@ -111,7 +111,7 @@
 		gap: var(--space-2);
 		min-height: 48px;
 		padding: 0.5rem var(--space-2);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 12px;
 		font-size: var(--font-size-body);
 		cursor: pointer;
@@ -140,7 +140,7 @@
 		min-height: 48px;
 		font-size: var(--font-size-h5);
 		padding: 0 var(--space-2);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 12px;
 		min-width: 0;
 	}

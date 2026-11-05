@@ -115,7 +115,7 @@
 		position: sticky;
 		top: 0;
 		height: 4px;
-		background: #e0e0e0;
+		background: var(--color-border);
 		z-index: 1;
 		border-radius: 2px;
 	}
@@ -168,7 +168,7 @@
 	.nav-btn.secondary {
 		background: transparent;
 		color: var(--color-primary);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 	}
 	.nav-btn.secondary:hover {
 		border-color: var(--color-primary);
@@ -193,7 +193,7 @@
 	}
 	.summary-item {
 		padding: var(--space-2) var(--space-3);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		cursor: pointer;
 		transition: border-color 0.15s;

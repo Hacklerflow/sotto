@@ -103,7 +103,7 @@
 		flex-direction: column;
 		gap: var(--space-2);
 		padding: var(--space-3);
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 12px;
 		margin-bottom: var(--space-2);
 	}
@@ -152,7 +152,7 @@
 		font-size: var(--font-size-body);
 		font-family: inherit;
 		padding: 8px 12px;
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		background: var(--color-bg);
 		color: var(--color-primary);
@@ -177,7 +177,7 @@
 		padding: 0 16px;
 		font-size: var(--font-size-body);
 		font-weight: 700;
-		border: 1px solid #e0e0e0;
+		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		background: transparent;
 		color: var(--color-primary);
