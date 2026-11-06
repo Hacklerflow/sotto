@@ -15,7 +15,7 @@ Bei iwantmyname im DNS von `iriskohlweiss.com`:
 ## 2. Repo auf den Server klonen
 
 ```bash
-ssh hostinger-roots
+ssh hetzner2
 cd /opt
 git clone https://github.com/Hacklerflow/sotto.git
 cd sotto
